@@ -23,22 +23,17 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
   const totalClean  = stats.reduce((s, p) => s + p.cleanCount, 0);
 
   const kpis = [
-    { label: 'Всего точек', value: stats.length, color: '#3F3DC4' },
+    { label: 'Всего точек',   value: stats.length,         color: '#3F3DC4', icon: '📍' },
     {
-      label: 'Точка-лидер',
-      value: leader?.count ?? 0,
-      sub: leader?.name,
-      color: '#D32B38',
+      label: 'Точка-лидер',   value: leader?.count ?? 0,
+      sub: leader?.name,      color: '#D32B38',             icon: '🏆',
     },
     {
-      label: 'Макс. возвраты',
-      value: maxRefund?.refund ?? 0,
-      sub: maxRefund?.name,
-      format: 'currency' as const,
-      color: '#D6850A',
+      label: 'Макс. возвраты', value: maxRefund?.refund ?? 0,
+      sub: maxRefund?.name,   format: 'currency' as const,  color: '#D6850A', icon: '💰',
     },
-    { label: 'Всего записей', value: filtered.length, color: '#6B7280' },
-    { label: 'Без нарушений', value: totalClean, color: '#1F9D57' },
+    { label: 'Всего записей', value: filtered.length,       color: '#6B7280', icon: '📊' },
+    { label: 'Без нарушений', value: totalClean,             color: '#1F9D57', icon: '✅' },
   ];
 
   const ratingData = useMemo(() => stats.map(s => ({ name: s.name, count: s.count })), [stats]);

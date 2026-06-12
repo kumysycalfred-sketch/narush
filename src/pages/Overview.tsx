@@ -35,15 +35,15 @@ export default function Overview({ rows }: Props) {
     : 0;
 
   const kpis = [
-    { label: 'Всего записей', value: filtered.length, color: '#3F3DC4' },
+    { label: 'Всего записей',    value: filtered.length,           color: '#3F3DC4', icon: '📋' },
     {
-      label: 'Отзывов гостей', value: guestRows.length,
+      label: 'Отзывов гостей',   value: guestRows.length,
       sub: `доп/адм: ${filtered.length - guestRows.length}`,
-      color: '#6B7280',
+      color: '#6B7280',          icon: '💬',
     },
-    { label: 'С нарушениями', value: withViolation.length, color: '#D32B38' },
-    { label: 'Сумма возвратов', value: sumRefund(filtered), format: 'currency' as const, color: '#D6850A' },
-    { label: 'Без нарушений', value: cleanPct, format: 'percent' as const, color: '#1F9D57' },
+    { label: 'С нарушениями',    value: withViolation.length,      color: '#D32B38', icon: '⚠️' },
+    { label: 'Сумма возвратов',  value: sumRefund(filtered), format: 'currency' as const, color: '#D6850A', icon: '💰' },
+    { label: 'Без нарушений',    value: cleanPct, format: 'percent' as const, color: '#1F9D57', icon: '✅' },
   ];
 
   const topPoints   = useMemo(() => topN(countBy(filtered, r => r.point), 12), [filtered]);

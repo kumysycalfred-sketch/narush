@@ -32,11 +32,11 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
   const forgivenCount = useMemo(() => filtered.filter(r => r.meta3p === 'Прощение').length, [filtered]);
 
   const kpis = [
-    { label: 'Записей с ФИО', value: filtered.length, color: '#3F3DC4' },
-    { label: 'Уникальных сотрудников', value: stats.length, color: '#6B7280' },
-    { label: 'Лишений премии', value: penaltyCount, color: '#D32B38' },
-    { label: 'Сумма возвратов', value: sumRefund(filtered), format: 'currency' as const, color: '#D6850A' },
-    { label: 'Прощений', value: forgivenCount, color: '#1F9D57' },
+    { label: 'Записей с ФИО',          value: filtered.length,    color: '#3F3DC4', icon: '📋' },
+    { label: 'Уникальных сотрудников', value: stats.length,       color: '#6B7280', icon: '👥' },
+    { label: 'Лишений премии',         value: penaltyCount,       color: '#D32B38', icon: '❌' },
+    { label: 'Сумма возвратов',        value: sumRefund(filtered), format: 'currency' as const, color: '#D6850A', icon: '💰' },
+    { label: 'Прощений',               value: forgivenCount,      color: '#1F9D57', icon: '🤝' },
   ];
 
   const top15 = useMemo(() => topN(countBy(filtered, r => r.name), 15), [filtered]);
