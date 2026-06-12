@@ -9,38 +9,33 @@ interface Props { rows: SheetRow[] }
 const SELECT_CLASS =
   'px-3 py-2 rounded-lg bg-card border border-[var(--border-color)] text-primary text-sm focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer';
 
-const DEPT_COLORS: Record<string, string> = {
-  окк:   '#6366F1',
-  адм:   '#F59E0B',
-};
+// Только реальные отделы — остальные значения в колонке «отдел» являются мусором из других колонок
+const KNOWN_DEPTS = ['Обратная связь', 'Админ'];
 
 function deptColor(dept: string): string {
-  const d = dept.toLowerCase();
-  for (const [key, color] of Object.entries(DEPT_COLORS)) {
-    if (d.includes(key)) return color;
-  }
+  if (dept === 'Обратная связь') return '#6366F1';
+  if (dept.toLowerCase().includes('адм'))  return '#F59E0B';
   return '#64748B';
 }
 
 export default function Departments({ rows }: Props) {
   const [filterDept, setFilterDept] = useState('');
 
-  const allDepartments = useMemo(() =>
-    [...new Set(rows.map(r => r.department).filter(Boolean))].sort(),
+  // Только строки с известным отделом
+  const deptRows = useMemo(() =>
+    rows.filter(r => KNOWN_DEPTS.includes(r.department)),
     [rows]
   );
 
   const filtered = useMemo(() =>
-    filterDept
-      ? rows.filter(r => r.department === filterDept)
-      : rows,
-    [rows, filterDept]
+    filterDept ? deptRows.filter(r => r.department === filterDept) : deptRows,
+    [deptRows, filterDept]
   );
 
   const stats = useMemo(() => buildProcessorStats(filtered), [filtered]);
 
-  const okkCount = useMemo(() =>
-    stats.filter(s => s.department.toLowerCase().includes('окк')).length,
+  const osCount = useMemo(() =>
+    stats.filter(s => s.department === 'Обратная связь').length,
     [stats]
   );
   const adminCount = useMemo(() =>
@@ -49,10 +44,10 @@ export default function Departments({ rows }: Props) {
   );
 
   const kpis = [
-    { label: 'Всего обработано',    value: filtered.filter(r => r.processor).length, color: '#3F3DC4', icon: '📋' },
-    { label: 'Сотрудников ОКК',     value: okkCount,   color: '#6366F1', icon: '🔍' },
-    { label: 'Сотрудников Админ',   value: adminCount, color: '#F59E0B', icon: '👤' },
-    { label: 'Уникальных исп.',     value: stats.length, color: '#10B981', icon: '👥' },
+    { label: 'Всего обработано',        value: filtered.filter(r => r.processor).length, color: '#3F3DC4', icon: '📋' },
+    { label: 'Сотрудников Обр. связи',  value: osCount,    color: '#6366F1', icon: '🔍' },
+    { label: 'Сотрудников Админ',       value: adminCount, color: '#F59E0B', icon: '👤' },
+    { label: 'Уникальных исп.',         value: stats.length, color: '#10B981', icon: '👥' },
   ];
 
   const chartData = stats.slice(0, 15).map(s => ({
@@ -68,11 +63,11 @@ export default function Departments({ rows }: Props) {
     <div className="space-y-6">
       <KpiRow items={kpis} />
 
-      {/* Фильтры */}
+      {/* Фильтр */}
       <div className="bg-card rounded-xl p-4 flex flex-wrap gap-3 items-center">
         <select className={SELECT_CLASS} value={filterDept} onChange={e => setFilterDept(e.target.value)}>
           <option value="">Все отделы</option>
-          {allDepartments.map(d => <option key={d} value={d}>{d}</option>)}
+          {KNOWN_DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
         <div className="flex items-center gap-2">
           <span className={`w-5 h-5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center shrink-0 transition-opacity ${hasFilter ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -87,7 +82,7 @@ export default function Departments({ rows }: Props) {
         </div>
       </div>
 
-      {/* График топ исполнителей */}
+      {/* График */}
       {chartData.length > 0 && (
         <div className="bg-card rounded-xl p-5">
           <h2 className="text-primary font-semibold mb-4">Топ исполнителей по количеству записей</h2>
@@ -114,19 +109,16 @@ export default function Departments({ rows }: Props) {
             </BarChart>
           </ResponsiveContainer>
           <div className="flex gap-4 mt-2 justify-center text-xs text-secondary">
-            <span><span className="inline-block w-3 h-3 rounded-sm mr-1" style={{ background: '#6366F1' }} />ОКК</span>
+            <span><span className="inline-block w-3 h-3 rounded-sm mr-1" style={{ background: '#6366F1' }} />Обратная связь</span>
             <span><span className="inline-block w-3 h-3 rounded-sm mr-1" style={{ background: '#F59E0B' }} />Админ</span>
-            <span><span className="inline-block w-3 h-3 rounded-sm mr-1" style={{ background: '#64748B' }} />Другой</span>
           </div>
         </div>
       )}
 
-      {/* Таблица сотрудников */}
+      {/* Таблица */}
       <div className="bg-card rounded-xl overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--border-color)]">
-          <h2 className="text-primary font-semibold">
-            Все исполнители ({stats.length})
-          </h2>
+          <h2 className="text-primary font-semibold">Все исполнители ({stats.length})</h2>
         </div>
         <div className="max-h-[500px] overflow-y-auto">
           <table className="w-full text-sm">
@@ -151,7 +143,7 @@ export default function Departments({ rows }: Props) {
                       className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
                       style={{ background: deptColor(s.department) }}
                     >
-                      {s.department || '—'}
+                      {s.department}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-right font-mono text-primary">{s.count}</td>
