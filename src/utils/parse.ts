@@ -71,8 +71,8 @@ export function parseRows(csv: string): SheetRow[] {
       department:   get(row, iDepartment),
       meta3p:       parseMeta3p(get(row, iMeta3p)),
       link:         get(row, iLink),
-      // Администраторы не учитываются в сумме возврата
-      refund:       get(row, iDepartment).toLowerCase() === 'администратор' ? 0 : parseRefund(get(row, iRefund)),
+      // Администраторы не учитываются в сумме возврата (значения: "Админ", "администратор" и др.)
+      refund:       get(row, iDepartment).toLowerCase().includes('адм') ? 0 : parseRefund(get(row, iRefund)),
       resolution:   get(row, iResolution),
     }))
     .filter(r => r.date || r.point);

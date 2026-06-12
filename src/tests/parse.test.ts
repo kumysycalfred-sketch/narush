@@ -42,12 +42,17 @@ describe('department refund rule', () => {
   const makeCSV = (department: string, refund: string) =>
     `дата нарушения,точка,вид,источник,день,объект,категории нарушений,грубые нарушения,проступки,фио,должность,отдел,3п,ссылка,сумма возврата,решение\n01.06.2026,МЧС,Отзыв гостя,Телеграм,День,Кухня,ТТК,,,,Повар,${department},,, ${refund},Возврат`;
 
+  it('обнуляет refund если отдел = "Админ"', () => {
+    const rows = parseRows(makeCSV('Админ', '640,00'));
+    expect(rows[0].refund).toBe(0);
+  });
+
   it('обнуляет refund если отдел = "администратор"', () => {
     const rows = parseRows(makeCSV('администратор', '640,00'));
     expect(rows[0].refund).toBe(0);
   });
 
-  it('обнуляет refund при разном регистре "Администратор"', () => {
+  it('обнуляет refund если отдел = "Администратор"', () => {
     const rows = parseRows(makeCSV('Администратор', '640,00'));
     expect(rows[0].refund).toBe(0);
   });
