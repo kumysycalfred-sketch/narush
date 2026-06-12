@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { SheetRow } from '../types';
-import { countBy, topN, byDate, sumRefund, uniqueValues } from '../utils/aggregate';
+import { countBy, topN, byDate, sumRefund, sumCashRefund, sumBonusRefund, uniqueValues } from '../utils/aggregate';
 import { isGuestReview, isViolation } from '../utils/parse';
 import KpiRow from '../components/KpiRow';
 import BarChart from '../components/BarChart';
@@ -42,7 +42,8 @@ export default function Overview({ rows }: Props) {
       color: '#6B7280',          icon: '💬',
     },
     { label: 'С нарушениями',    value: withViolation.length,      color: '#D32B38', icon: '⚠️' },
-    { label: 'Сумма возвратов',  value: sumRefund(filtered), format: 'currency' as const, color: '#D6850A', icon: '💰' },
+    { label: 'Возврат деньгами', value: sumCashRefund(filtered),  format: 'currency' as const, color: '#D6850A', icon: '💰' },
+    { label: 'Начислено баллов', value: sumBonusRefund(filtered), format: 'currency' as const, color: '#8B5CF6', icon: '🎁' },
     { label: 'Без нарушений',    value: cleanPct, format: 'percent' as const, color: '#1F9D57', icon: '✅' },
   ];
 

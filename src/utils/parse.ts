@@ -52,6 +52,7 @@ export function parseRows(csv: string): SheetRow[] {
   const iMeta3p      = headers.findIndex(h => h.includes('3') && h.includes('п'));
   const iLink        = headers.findIndex(h => h === 'ссылка');
   const iRefund      = idx('сумма возврата');
+  const iStatusOS    = idx('статус ос');
   const iResolution  = idx('решение');
 
   const get = (row: string[], i: number) => (i >= 0 ? row[i]?.trim() || '' : '');
@@ -75,6 +76,7 @@ export function parseRows(csv: string): SheetRow[] {
       link:         get(row, iLink),
       // Администраторы не учитываются в сумме возврата (значения: "Админ", "администратор" и др.)
       refund:       get(row, iDepartment).toLowerCase().includes('адм') ? 0 : parseRefund(get(row, iRefund)),
+      statusOS:     get(row, iStatusOS),
       resolution:   get(row, iResolution),
     }))
     .filter(r => r.date || r.point);

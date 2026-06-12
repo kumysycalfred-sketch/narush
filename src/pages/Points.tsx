@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { SheetRow } from '../types';
-import { buildPointStats } from '../utils/aggregate';
+import { buildPointStats, sumCashRefund, sumBonusRefund } from '../utils/aggregate';
 import KpiRow from '../components/KpiRow';
 import BarChart from '../components/BarChart';
 import PointCard from '../components/PointCard';
@@ -28,12 +28,9 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
       label: 'Точка-лидер',   value: leader?.count ?? 0,
       sub: leader?.name,      color: '#D32B38',             icon: '🏆',
     },
-    {
-      label: 'Макс. возвраты', value: maxRefund?.refund ?? 0,
-      sub: maxRefund?.name,   format: 'currency' as const,  color: '#D6850A', icon: '💰',
-    },
-    { label: 'Всего записей', value: filtered.length,       color: '#6B7280', icon: '📊' },
-    { label: 'Без нарушений', value: totalClean,             color: '#1F9D57', icon: '✅' },
+    { label: 'Возврат деньгами', value: sumCashRefund(filtered),  format: 'currency' as const, color: '#D6850A', icon: '💰' },
+    { label: 'Начислено баллов', value: sumBonusRefund(filtered), format: 'currency' as const, color: '#8B5CF6', icon: '🎁' },
+    { label: 'Без нарушений',   value: totalClean,                color: '#1F9D57', icon: '✅' },
   ];
 
   const ratingData = useMemo(() => stats.map(s => ({ name: s.name, count: s.count })), [stats]);

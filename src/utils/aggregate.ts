@@ -86,6 +86,18 @@ export function sumRefund(rows: SheetRow[]): number {
   return rows.reduce((sum, r) => sum + r.refund, 0);
 }
 
+export function isBonus(row: SheetRow): boolean {
+  return row.statusOS.toLowerCase().includes('начислены баллы');
+}
+
+export function sumCashRefund(rows: SheetRow[]): number {
+  return rows.filter(r => !isBonus(r)).reduce((sum, r) => sum + r.refund, 0);
+}
+
+export function sumBonusRefund(rows: SheetRow[]): number {
+  return rows.filter(r => isBonus(r)).reduce((sum, r) => sum + r.refund, 0);
+}
+
 export function uniqueValues(rows: SheetRow[], key: keyof Pick<SheetRow, 'point' | 'position' | 'object'>): string[] {
   return [...new Set(rows.map(r => r[key] as string).filter(Boolean))].sort();
 }

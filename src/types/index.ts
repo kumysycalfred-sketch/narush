@@ -15,6 +15,7 @@ export interface SheetRow {
   meta3p: string;
   link: string;
   refund: number;
+  statusOS: string;
   resolution: string;
 }
 

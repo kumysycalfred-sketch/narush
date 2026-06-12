@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { countBy, topN, buildEmployeeStats, buildPointStats, byDate, filterByDate } from '../utils/aggregate';
+import { countBy, topN, buildEmployeeStats, buildPointStats, byDate, filterByDate, sumCashRefund, sumBonusRefund } from '../utils/aggregate';
 import { SheetRow } from '../types';
 
 const base: SheetRow = {
   date: '01.06', point: 'МЧС', type: 'Отзыв гостя', source: 'Телеграм',
   shift: 'День', object: 'Кухня', categories: ['ТТК'], violations: ['Ошибка в технологии'],
-  misdemeanors: [], name: 'Иванов Иван', position: 'Повар',
-  meta3p: 'Прощение', refund: 640, resolution: 'Возврат',
+  misdemeanors: [], name: 'Иванов Иван', position: 'Повар', department: '', processor: '',
+  meta3p: 'Прощение', refund: 640, statusOS: '', resolution: 'Возврат',
 };
 const row1 = { ...base };
 const row2 = { ...base, categories: ['Сервис'], refund: 0, violations: [] };
@@ -118,5 +118,24 @@ describe('filterByDate', () => {
     const rows = [r('04.06.2026'), r('05.06.2026'), r('08.06.2026'), r('10.06.2026'), r('11.06.2026')];
     const result = filterByDate(rows, { from, to });
     expect(result.map(x => x.date)).toEqual(['05.06.2026', '08.06.2026', '10.06.2026']);
+  });
+});
+
+describe('sumCashRefund / sumBonusRefund', () => {
+  const cash  = { ...base, refund: 500, statusOS: 'Ответ дан' };
+  const bonus = { ...base, refund: 300, statusOS: 'Начислены баллы' };
+  const combo = { ...base, refund: 200, statusOS: 'Ответ дан, Начислены баллы' };
+
+  it('sumCashRefund считает только строки без баллов', () => {
+    expect(sumCashRefund([cash, bonus, combo])).toBe(500);
+  });
+
+  it('sumBonusRefund считает только строки с баллами', () => {
+    expect(sumBonusRefund([cash, bonus, combo])).toBe(500);
+  });
+
+  it('пустой список → 0', () => {
+    expect(sumCashRefund([])).toBe(0);
+    expect(sumBonusRefund([])).toBe(0);
   });
 });
