@@ -1,4 +1,4 @@
-import { SheetRow, EmployeeStats, PointStats, DateRange } from '../types';
+import { SheetRow, EmployeeStats, PointStats, ProcessorStats, DateRange } from '../types';
 
 export function countBy<T>(items: T[], key: (item: T) => string): Record<string, number> {
   return items.reduce((acc, item) => {
@@ -99,6 +99,17 @@ function parseSheetDate(d: string): Date | null {
   const year = yy.length === 2 ? 2000 + parseInt(yy, 10) : parseInt(yy, 10);
   const date = new Date(year, parseInt(mm, 10) - 1, parseInt(dd, 10));
   return isNaN(date.getTime()) ? null : date;
+}
+
+export function buildProcessorStats(rows: SheetRow[]): ProcessorStats[] {
+  const map = new Map<string, ProcessorStats>();
+  rows.filter(r => r.processor).forEach(r => {
+    if (!map.has(r.processor)) {
+      map.set(r.processor, { name: r.processor, department: r.department, count: 0 });
+    }
+    map.get(r.processor)!.count++;
+  });
+  return [...map.values()].sort((a, b) => b.count - a.count);
 }
 
 export function filterByDate(rows: SheetRow[], range: DateRange): SheetRow[] {

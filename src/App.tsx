@@ -10,6 +10,7 @@ import { SkeletonPage } from './components/Skeleton';
 import Overview from './pages/Overview';
 import Staff from './pages/Staff';
 import Points from './pages/Points';
+import Departments from './pages/Departments';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10 },
@@ -91,9 +92,10 @@ export default function App() {
             exit="exit"
             transition={{ duration: 0.2 }}
           >
-            {tab === 'overview' && <Overview rows={dateFiltered} />}
-            {tab === 'staff'    && <Staff rows={dateFiltered} />}
-            {tab === 'points'   && <Points rows={dateFiltered} />}
+            {tab === 'overview'     && <Overview rows={dateFiltered} />}
+            {tab === 'staff'        && <Staff rows={dateFiltered} />}
+            {tab === 'points'       && <Points rows={dateFiltered} />}
+            {tab === 'departments'  && <Departments rows={dateFiltered} />}
           </motion.div>
         </AnimatePresence>
       )}

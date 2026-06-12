@@ -3,9 +3,10 @@ import { Tab, DateRange } from '../types';
 import DateRangeFilter from './DateRangeFilter';
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'overview', label: 'Обзор' },
-  { key: 'staff',    label: 'Сотрудники' },
-  { key: 'points',   label: 'Точки' },
+  { key: 'overview',     label: 'Обзор' },
+  { key: 'staff',        label: 'Сотрудники' },
+  { key: 'points',       label: 'Точки' },
+  { key: 'departments',  label: 'Отделы' },
 ];
 
 interface LayoutProps {

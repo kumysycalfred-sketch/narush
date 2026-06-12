@@ -48,6 +48,7 @@ export function parseRows(csv: string): SheetRow[] {
   const iName        = idx('фио');
   const iPosition    = idx('должность');
   const iDepartment  = idx('отдел');
+  const iProcessor   = idx('отработал');
   const iMeta3p      = headers.findIndex(h => h.includes('3') && h.includes('п'));
   const iLink        = headers.findIndex(h => h === 'ссылка');
   const iRefund      = idx('сумма возврата');
@@ -69,6 +70,7 @@ export function parseRows(csv: string): SheetRow[] {
       name:         get(row, iName),
       position:     get(row, iPosition),
       department:   get(row, iDepartment),
+      processor:    get(row, iProcessor),
       meta3p:       parseMeta3p(get(row, iMeta3p)),
       link:         get(row, iLink),
       // Администраторы не учитываются в сумме возврата (значения: "Админ", "администратор" и др.)

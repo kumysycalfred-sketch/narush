@@ -11,6 +11,7 @@ export interface SheetRow {
   name: string;
   position: string;
   department: string;
+  processor: string;
   meta3p: string;
   link: string;
   refund: number;
@@ -39,7 +40,13 @@ export interface PointStats {
   cleanCount: number;
 }
 
-export type Tab = 'overview' | 'staff' | 'points';
+export interface ProcessorStats {
+  name: string;
+  department: string;
+  count: number;
+}
+
+export type Tab = 'overview' | 'staff' | 'points' | 'departments';
 
 export interface DateRange {
   from: Date | null;
