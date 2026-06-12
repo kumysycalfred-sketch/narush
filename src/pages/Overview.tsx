@@ -44,7 +44,6 @@ export default function Overview({ rows }: Props) {
     { label: 'С нарушениями',    value: withViolation.length,      color: '#D32B38', icon: '⚠️' },
     { label: 'Возврат деньгами', value: sumCashRefund(filtered),  format: 'currency' as const, color: '#D6850A', icon: '💰' },
     { label: 'Начислено баллов', value: sumBonusRefund(filtered), format: 'currency' as const, color: '#8B5CF6', icon: '🎁' },
-    { label: 'Без нарушений',    value: cleanPct, format: 'percent' as const, color: '#1F9D57', icon: '✅' },
   ];
 
   const topPoints   = useMemo(() => topN(countBy(filtered, r => r.point), 12), [filtered]);
