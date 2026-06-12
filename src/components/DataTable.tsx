@@ -55,10 +55,13 @@ export default function DataTable({ rows }: Props) {
 
   return (
     <div className="bg-card rounded-xl overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
         <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-[var(--border-color)]">
+          <thead className="sticky top-0 z-10">
+            <tr
+              className="border-b border-[var(--border-color)]"
+              style={{ backgroundColor: 'var(--bg-base)' }}
+            >
               {COLUMNS.map(col => (
                 <th
                   key={col.key}
@@ -81,7 +84,7 @@ export default function DataTable({ rows }: Props) {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.15, delay: i >= 10 ? (i - (visible - 50)) * 0.03 : 0 }}
-                  className={`border-b border-[var(--border-color)] last:border-0 ${
+                  className={`border-b border-[var(--border-color)] last:border-0 hover:bg-accent/5 transition-colors duration-100 ${
                     i % 2 === 0 ? '' : 'bg-[var(--bg-base)]'
                   }`}
                 >
