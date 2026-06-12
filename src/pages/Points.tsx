@@ -34,7 +34,6 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
   ];
 
   const ratingData = useMemo(() => stats.map(s => ({ name: s.name, count: s.count })), [stats]);
-  const top12 = stats.slice(0, 12);
   const maxCount = useMemo(() => stats.reduce((m, s) => Math.max(m, s.count), 0), [stats]);
 
   return (
@@ -69,19 +68,15 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
         onBarClick={setSelectedPoint}
       />
 
-      {top12.length > 0 && (
+      {stats.length > 0 && (
         <div>
           <h2 className="text-primary font-semibold mb-4">
-            Топ-12 точек{' '}
+            Все точки ({stats.length}){' '}
             <span className="text-secondary font-normal text-sm">— нажмите карточку для деталей</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {top12.map(s => (
-              <div
-                key={s.name}
-                onClick={() => setSelectedPoint(s.name)}
-                className="cursor-pointer"
-              >
+            {stats.map(s => (
+              <div key={s.name} onClick={() => setSelectedPoint(s.name)}>
                 <PointCard stats={s} maxCount={maxCount} />
               </div>
             ))}
