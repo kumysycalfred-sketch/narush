@@ -50,18 +50,25 @@ const INPUT_CLASS =
   'px-2 py-1.5 rounded-lg bg-card border border-border text-primary text-xs focus:outline-none focus:ring-2 focus:ring-accent';
 
 export default function DateRangeFilter({ value, onChange }: Props) {
-  const [preset, setPreset]         = useState<Preset>('all');
-  const [showCustom, setShowCustom] = useState(false);
+  // preset is the source of truth for which button is active and whether custom panel is open.
+  // Note: preset is local state — if the parent externally resets value, the highlighted button
+  // won't update. In this app App.tsx only changes dateRange through this component, so they stay in sync.
+  const [preset, setPreset] = useState<Preset>('all');
 
   const applyPreset = (p: Exclude<Preset, 'custom'>) => {
     setPreset(p);
-    setShowCustom(false);
     onChange(rangeForPreset(p));
   };
 
   const toggleCustom = () => {
-    setPreset('custom');
-    setShowCustom(s => !s);
+    if (preset === 'custom') {
+      // closing custom panel — reset to show-all
+      setPreset('all');
+      onChange({ from: null, to: null });
+    } else {
+      setPreset('custom');
+      onChange({ from: null, to: null });
+    }
   };
 
   const btn = (active: boolean) =>
@@ -83,7 +90,7 @@ export default function DateRangeFilter({ value, onChange }: Props) {
       </button>
 
       <AnimatePresence>
-        {showCustom && (
+        {preset === 'custom' && (
           <motion.div
             key="custom-inputs"
             initial={{ opacity: 0, scaleY: 0.8 }}
@@ -96,14 +103,14 @@ export default function DateRangeFilter({ value, onChange }: Props) {
             <input
               type="date"
               value={toInputDate(value.from)}
-              onChange={e => onChange({ ...value, from: e.target.value ? new Date(e.target.value + 'T00:00:00') : null })}
+              onChange={e => onChange({ ...value, from: e.target.value ? startOfDay(new Date(e.target.value + 'T00:00:00')) : null })}
               className={INPUT_CLASS}
             />
             <span className="text-secondary text-xs">—</span>
             <input
               type="date"
               value={toInputDate(value.to)}
-              onChange={e => onChange({ ...value, to: e.target.value ? new Date(e.target.value + 'T23:59:59') : null })}
+              onChange={e => onChange({ ...value, to: e.target.value ? endOfDay(new Date(e.target.value + 'T00:00:00')) : null })}
               className={INPUT_CLASS}
             />
           </motion.div>
