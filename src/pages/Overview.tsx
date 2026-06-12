@@ -77,11 +77,21 @@ export default function Overview({ rows }: Props) {
           <option value="">Все точки</option>
           {allPoints.map(p => <option key={p} value={p}>{p}</option>)}
         </select>
-        {hasFilter && (
-          <button onClick={reset} className="text-secondary text-sm hover:text-primary underline">
+        <div className="flex items-center gap-2">
+          {hasFilter && (
+            <span className="w-5 h-5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+              {[filterType, filterObject, filterPoint].filter(Boolean).length}
+            </span>
+          )}
+          <button
+            onClick={reset}
+            className={`text-secondary text-sm hover:text-primary underline transition-opacity ${
+              hasFilter ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+          >
             Сбросить
           </button>
-        )}
+        </div>
       </div>
 
       <KpiRow items={kpis} />

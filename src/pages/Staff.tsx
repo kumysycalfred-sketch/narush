@@ -14,6 +14,7 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
   const [filterPosition, setFilterPosition] = useState('');
   const [filterPoint, setFilterPoint] = useState('');
   const [selected, setSelected] = useState<EmployeeStats | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const allPositions = useMemo(() => uniqueValues(rows.filter(r => r.name), 'position'), [rows]);
   const allPoints    = useMemo(() => uniqueValues(rows.filter(r => r.name), 'point'), [rows]);
@@ -26,24 +27,36 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
     return true;
   }), [namedRows, filterPosition, filterPoint]);
 
-  const stats = useMemo(() => buildEmployeeStats(filtered), [filtered]);
+  const searched = useMemo(() =>
+    searchQuery.trim()
+      ? filtered.filter(r =>
+          r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          r.position.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : filtered,
+    [filtered, searchQuery]
+  );
 
-  const penaltyCount  = useMemo(() => filtered.filter(r => r.meta3p === 'Лишение премии').length, [filtered]);
-  const forgivenCount = useMemo(() => filtered.filter(r => r.meta3p === 'Прощение').length, [filtered]);
+  const stats = useMemo(() => buildEmployeeStats(searched), [searched]);
+
+  const penaltyCount  = useMemo(() => searched.filter(r => r.meta3p === 'Лишение премии').length, [searched]);
+  const forgivenCount = useMemo(() => searched.filter(r => r.meta3p === 'Прощение').length, [searched]);
 
   const kpis = [
-    { label: 'Записей с ФИО',          value: filtered.length,    color: '#3F3DC4', icon: '📋' },
+    { label: 'Записей с ФИО',          value: searched.length,    color: '#3F3DC4', icon: '📋' },
     { label: 'Уникальных сотрудников', value: stats.length,       color: '#6B7280', icon: '👥' },
     { label: 'Лишений премии',         value: penaltyCount,       color: '#D32B38', icon: '❌' },
-    { label: 'Сумма возвратов',        value: sumRefund(filtered), format: 'currency' as const, color: '#D6850A', icon: '💰' },
+    { label: 'Сумма возвратов',        value: sumRefund(searched), format: 'currency' as const, color: '#D6850A', icon: '💰' },
     { label: 'Прощений',               value: forgivenCount,      color: '#1F9D57', icon: '🤝' },
   ];
 
-  const top15 = useMemo(() => topN(countBy(filtered, r => r.name), 15), [filtered]);
+  const top15 = useMemo(() => topN(countBy(searched, r => r.name), 15), [searched]);
   const top25 = stats.slice(0, 25);
   const maxCount = useMemo(() => stats.reduce((m, s) => Math.max(m, s.count), 0), [stats]);
 
-  const reset = () => { setFilterPosition(''); setFilterPoint(''); };
+  const reset            = () => { setFilterPosition(''); setFilterPoint(''); setSearchQuery(''); };
+  const hasFilter        = filterPosition || filterPoint || searchQuery;
+  const activeFilterCount = [filterPosition, filterPoint, searchQuery].filter(Boolean).length;
 
   return (
     <div className="space-y-6">
@@ -57,11 +70,33 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
           <option value="">Все точки</option>
           {allPoints.map(p => <option key={p} value={p}>{p}</option>)}
         </select>
-        {(filterPosition || filterPoint) && (
-          <button onClick={reset} className="text-secondary text-sm hover:text-primary underline">
+        <div className="relative flex-1 min-w-[200px]">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm pointer-events-none select-none">
+            🔍
+          </span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Поиск по имени или должности..."
+            className="w-full pl-8 pr-3 py-2 rounded-lg bg-card border border-[var(--border-color)] text-primary text-sm placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-accent"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          {hasFilter && (
+            <span className="w-5 h-5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+              {activeFilterCount}
+            </span>
+          )}
+          <button
+            onClick={reset}
+            className={`text-secondary text-sm hover:text-primary underline transition-opacity ${
+              hasFilter ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+          >
             Сбросить
           </button>
-        )}
+        </div>
       </div>
 
       <KpiRow items={kpis} />
@@ -92,14 +127,14 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
 
       <div>
         <h2 className="text-primary font-semibold mb-4">
-          Все записи с ФИО ({filtered.length})
+          Все записи с ФИО ({searched.length})
         </h2>
-        <DataTable rows={filtered} />
+        <DataTable rows={searched} />
       </div>
 
       <EmployeeModal
         stats={selected}
-        employeeRows={selected ? filtered.filter(r => r.name === selected.name) : []}
+        employeeRows={selected ? searched.filter(r => r.name === selected.name) : []}
         onClose={() => setSelected(null)}
       />
     </div>

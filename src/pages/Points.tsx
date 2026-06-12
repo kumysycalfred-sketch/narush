@@ -48,11 +48,21 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
           <option value="">Все объекты</option>
           {['Кухня', 'Бар', 'Цех', 'Поставщик'].map(o => <option key={o} value={o}>{o}</option>)}
         </select>
-        {filterObject && (
-          <button onClick={() => setFilterObject('')} className="text-secondary text-sm hover:text-primary underline">
+        <div className="flex items-center gap-2">
+          {filterObject && (
+            <span className="w-5 h-5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+              1
+            </span>
+          )}
+          <button
+            onClick={() => setFilterObject('')}
+            className={`text-secondary text-sm hover:text-primary underline transition-opacity ${
+              filterObject ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+          >
             Сбросить
           </button>
-        )}
+        </div>
       </div>
 
       <KpiRow items={kpis} />
