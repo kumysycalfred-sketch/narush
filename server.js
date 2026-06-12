@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const Papa = require('papaparse');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,23 +29,11 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('/api/debug/headers', (req, res) => {
   if (!cache.csv) return res.status(503).json({ error: 'Cache not ready' });
-  // Use a proper CSV-aware parse for the first row to handle quoted fields
-  const firstLine = cache.csv.split('\n')[0];
-  const headers = [];
-  let i = 0, col = 0, cur = '';
-  while (i < firstLine.length) {
-    if (firstLine[i] === '"') {
-      i++;
-      while (i < firstLine.length && firstLine[i] !== '"') cur += firstLine[i++];
-      i++; // closing quote
-    } else if (firstLine[i] === ',') {
-      headers.push({ i: col++, header: cur.replace(/\n/g, ' ').trim() });
-      cur = ''; i++;
-    } else {
-      cur += firstLine[i++];
-    }
-  }
-  headers.push({ i: col, header: cur.replace(/\n/g, ' ').trim() });
+  const parsed = Papa.parse(cache.csv, { skipEmptyLines: true });
+  const headers = (parsed.data[0] || []).map((h, i) => ({
+    i,
+    header: String(h).replace(/\n/g, ' ').trim(),
+  }));
   res.json(headers);
 });
 
