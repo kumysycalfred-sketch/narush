@@ -50,7 +50,7 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
         </select>
         <div className="flex items-center gap-2">
           <span className={`w-5 h-5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center shrink-0 transition-opacity ${filterObject ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            1
+            {[filterObject].filter(Boolean).length}
           </span>
           <button
             onClick={() => setFilterObject('')}

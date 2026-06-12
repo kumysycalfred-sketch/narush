@@ -79,6 +79,7 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Поиск по имени или должности..."
+            aria-label="Поиск по имени или должности"
             className="w-full pl-8 pr-3 py-2 rounded-lg bg-card border border-[var(--border-color)] text-primary text-sm placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-accent"
           />
         </div>
