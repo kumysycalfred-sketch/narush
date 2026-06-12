@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { SheetRow, Tab } from './types';
+import { SheetRow, Tab, DateRange } from './types';
 import { fetchSheet } from './api/fetchSheet';
 import { parseRows } from './utils/parse';
+import { filterByDate } from './utils/aggregate';
 import { useTheme } from './hooks/useTheme';
 import Layout from './components/Layout';
 import { SkeletonPage } from './components/Skeleton';
@@ -33,11 +34,12 @@ function ErrorBanner({ error, onRetry }: { error: string; onRetry: () => void })
 
 export default function App() {
   const { dark, toggle } = useTheme();
-  const [tab, setTab] = useState<Tab>('overview');
-  const [rows, setRows] = useState<SheetRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [tab, setTab]               = useState<Tab>('overview');
+  const [rows, setRows]             = useState<SheetRow[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState<string | null>(null);
+  const [updatedAt, setUpdatedAt]   = useState<string | null>(null);
+  const [dateRange, setDateRange]   = useState<DateRange>({ from: null, to: null });
 
   const load = useCallback(async () => {
     try {
@@ -58,8 +60,15 @@ export default function App() {
     return () => clearInterval(id);
   }, [load]);
 
+  const dateFiltered = useMemo(() => filterByDate(rows, dateRange), [rows, dateRange]);
+
   return (
-    <Layout tab={tab} setTab={setTab} dark={dark} toggleTheme={toggle} updatedAt={updatedAt}>
+    <Layout
+      tab={tab} setTab={setTab}
+      dark={dark} toggleTheme={toggle}
+      updatedAt={updatedAt}
+      dateRange={dateRange} onDateChange={setDateRange}
+    >
       {loading ? (
         <SkeletonPage />
       ) : error ? (
@@ -74,9 +83,9 @@ export default function App() {
             exit="exit"
             transition={{ duration: 0.2 }}
           >
-            {tab === 'overview' && <Overview rows={rows} />}
-            {tab === 'staff' && <Staff rows={rows} />}
-            {tab === 'points' && <Points rows={rows} />}
+            {tab === 'overview' && <Overview rows={dateFiltered} />}
+            {tab === 'staff'    && <Staff rows={dateFiltered} />}
+            {tab === 'points'   && <Points rows={dateFiltered} />}
           </motion.div>
         </AnimatePresence>
       )}

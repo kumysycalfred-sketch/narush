@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
-import { Tab } from '../types';
+import { Tab, DateRange } from '../types';
+import DateRangeFilter from './DateRangeFilter';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'overview', label: 'Обзор' },
@@ -13,10 +14,12 @@ interface LayoutProps {
   dark: boolean;
   toggleTheme: () => void;
   updatedAt: string | null;
+  dateRange: DateRange;
+  onDateChange: (r: DateRange) => void;
   children: ReactNode;
 }
 
-export default function Layout({ tab, setTab, dark, toggleTheme, updatedAt, children }: LayoutProps) {
+export default function Layout({ tab, setTab, dark, toggleTheme, updatedAt, dateRange, onDateChange, children }: LayoutProps) {
   const timeLabel = updatedAt
     ? new Date(updatedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
     : null;
@@ -35,7 +38,6 @@ export default function Layout({ tab, setTab, dark, toggleTheme, updatedAt, chil
       >
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            {/* Логотип-акцент */}
             <span
               className="w-2 h-6 rounded-full"
               style={{ background: 'linear-gradient(180deg, #6366F1, #A78BFA)' }}
@@ -75,7 +77,6 @@ export default function Layout({ tab, setTab, dark, toggleTheme, updatedAt, chil
           </div>
         </div>
 
-        {/* Навигация */}
         <nav className="max-w-7xl mx-auto px-4 flex gap-1 pb-2">
           {TABS.map(({ key, label }) => (
             <button
@@ -110,6 +111,8 @@ export default function Layout({ tab, setTab, dark, toggleTheme, updatedAt, chil
             </button>
           ))}
         </nav>
+
+        <DateRangeFilter value={dateRange} onChange={onDateChange} />
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
