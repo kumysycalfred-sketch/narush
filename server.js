@@ -49,6 +49,11 @@ app.get('/api/debug/department', (req, res) => {
   res.json({ columnIndex: iDept, uniqueValues: values });
 });
 
+app.get('/api/refresh', async (req, res) => {
+  await refreshCache();
+  res.json({ ok: true, updatedAt: cache.updatedAt });
+});
+
 app.get('/api/sheet', (req, res) => {
   if (!cache.csv) {
     return res.status(503).json({ error: 'Data not ready, try again in a few seconds' });

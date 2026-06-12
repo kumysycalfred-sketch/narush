@@ -58,6 +58,7 @@ export default function App() {
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
+    try { await fetch('/api/refresh'); } catch {}
     await load();
     setRefreshing(false);
   }, [load]);
