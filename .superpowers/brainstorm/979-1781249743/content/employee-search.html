@@ -1,0 +1,54 @@
+<h2>Поиск по сотрудникам — как должен работать?</h2>
+<p class="subtitle">Выбери поведение поиска на вкладке «Сотрудники»</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content" style="width:100%">
+      <h3>Поиск в шапке фильтров</h3>
+      <p>Поле поиска встроено прямо в панель фильтров рядом с выпадающими списками. Фильтрует карточки и таблицу сотрудников в реальном времени по мере ввода.</p>
+      <div style="margin-top:10px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:10px;font-family:sans-serif;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;color:#94A3B8;font-size:11px">Все должности ▾</div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;color:#94A3B8;font-size:11px">Все точки ▾</div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(99,102,241,0.4);border-radius:6px;padding:6px 10px;color:#F1F5F9;font-size:11px;display:flex;align-items:center;gap:6px;min-width:160px">
+          <span style="color:#6366F1">🔍</span>
+          <span style="color:#64748B">Иванов...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content" style="width:100%">
+      <h3>Поиск над таблицей</h3>
+      <p>Отдельная широкая строка поиска прямо над таблицей записей с ФИО. Фильтрует только таблицу, карточки остаются нетронутыми.</p>
+      <div style="margin-top:10px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:10px;font-family:sans-serif">
+        <div style="color:#94A3B8;font-size:11px;margin-bottom:6px">Все записи с ФИО (156)</div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(99,102,241,0.4);border-radius:6px;padding:7px 12px;color:#64748B;font-size:11px;display:flex;align-items:center;gap:8px">
+          <span style="color:#6366F1">🔍</span>
+          <span>Поиск по имени сотрудника...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content" style="width:100%">
+      <h3>Единый поиск — везде</h3>
+      <p>Одно поле в фильтрах, которое фильтрует сразу: карточки сотрудников, таблицу записей и бар-чарт «Топ-15 нарушителей». Поиск работает по имени и должности.</p>
+      <div style="margin-top:10px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:10px;font-family:sans-serif;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;color:#94A3B8;font-size:11px">Все должности ▾</div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;color:#94A3B8;font-size:11px">Все точки ▾</div>
+        <div style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(99,102,241,0.4);border-radius:6px;padding:6px 12px;color:#F1F5F9;font-size:11px;display:flex;align-items:center;gap:6px">
+          <span style="color:#6366F1">🔍</span>
+          <span style="color:#64748B">Поиск по имени или должности...</span>
+        </div>
+        <div style="background:rgba(99,102,241,0.15);border-radius:5px;padding:5px 8px;color:#A78BFA;font-size:10px">фильтрует всё ↓</div>
+      </div>
+    </div>
+  </div>
+
+</div>
