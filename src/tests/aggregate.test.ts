@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { countBy, topN, buildEmployeeStats, buildPointStats, byDate } from '../utils/aggregate';
+import { countBy, topN, buildEmployeeStats, buildPointStats, byDate, filterByDate } from '../utils/aggregate';
 import { SheetRow } from '../types';
 
 const base: SheetRow = {
@@ -72,5 +72,43 @@ describe('byDate', () => {
       { date: '01.06', count: 2 },
       { date: '02.06', count: 1 },
     ]);
+  });
+});
+
+describe('filterByDate', () => {
+  const r = (date: string) => ({ ...base, date });
+
+  it('returns all rows when range is empty', () => {
+    expect(filterByDate([r('01.06.2026'), r('15.06.2026')], { from: null, to: null })).toHaveLength(2);
+  });
+
+  it('excludes rows before from date', () => {
+    const from = new Date(2026, 5, 5, 0, 0, 0); // June 5
+    const result = filterByDate([r('04.06.2026'), r('05.06.2026'), r('06.06.2026')], { from, to: null });
+    expect(result.map(x => x.date)).toEqual(['05.06.2026', '06.06.2026']);
+  });
+
+  it('excludes rows after to date', () => {
+    const to = new Date(2026, 5, 5, 23, 59, 59); // June 5 end
+    const result = filterByDate([r('04.06.2026'), r('05.06.2026'), r('06.06.2026')], { from: null, to });
+    expect(result.map(x => x.date)).toEqual(['04.06.2026', '05.06.2026']);
+  });
+
+  it('passes through rows with unparseable dates', () => {
+    const result = filterByDate([r('')], { from: new Date(), to: new Date() });
+    expect(result).toHaveLength(1);
+  });
+
+  it('passes through rows with 2-part dates (no year)', () => {
+    const result = filterByDate([r('01.06')], { from: new Date(), to: new Date() });
+    expect(result).toHaveLength(1);
+  });
+
+  it('handles YY year format', () => {
+    const from = new Date(2026, 5, 1, 0, 0, 0);
+    const to = new Date(2026, 5, 30, 23, 59, 59);
+    const result = filterByDate([r('15.06.26'), r('15.07.26')], { from, to });
+    expect(result).toHaveLength(1);
+    expect(result[0].date).toBe('15.06.26');
   });
 });

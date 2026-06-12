@@ -39,3 +39,8 @@ export interface PointStats {
 }
 
 export type Tab = 'overview' | 'staff' | 'points';
+
+export interface DateRange {
+  from: Date | null;
+  to: Date | null;
+}
