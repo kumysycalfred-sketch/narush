@@ -41,6 +41,7 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
 
   const top15 = useMemo(() => topN(countBy(filtered, r => r.name), 15), [filtered]);
   const top25 = stats.slice(0, 25);
+  const maxCount = useMemo(() => stats.reduce((m, s) => Math.max(m, s.count), 0), [stats]);
 
   const reset = () => { setFilterPosition(''); setFilterPoint(''); };
 
@@ -83,7 +84,7 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {top25.map(s => (
-              <EmployeeCard key={s.name} stats={s} onClick={() => setSelected(s)} />
+              <EmployeeCard key={s.name} stats={s} maxCount={maxCount} onClick={() => setSelected(s)} />
             ))}
           </div>
         </div>

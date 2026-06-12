@@ -1,5 +1,10 @@
 import { PointStats } from '../types';
 
+interface Props {
+  stats: PointStats;
+  maxCount: number;
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
@@ -9,12 +14,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export default function PointCard({ stats }: { stats: PointStats }) {
+export default function PointCard({ stats, maxCount }: Props) {
   const sortedEntries = (r: Record<string, number>) =>
     Object.entries(r).sort(([, a], [, b]) => b - a);
 
+  const pct = maxCount > 0 ? Math.round((stats.count / maxCount) * 100) : 0;
+
   return (
-    <div className="bg-card rounded-xl p-5 space-y-4 border border-border hover:shadow-md transition-shadow duration-200">
+    <div className="bg-card rounded-xl p-5 space-y-4 border border-border hover:border-accent/30 hover:shadow-md hover:-translate-y-1 transition-all duration-200">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-primary font-semibold leading-tight">{stats.name}</h3>
@@ -30,6 +37,14 @@ export default function PointCard({ stats }: { stats: PointStats }) {
             <p className="font-mono text-xs text-success">✓ {stats.cleanCount} чисто</p>
           )}
         </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-danger/50 transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
       </div>
 
       {Object.keys(stats.byCategory).length > 0 && (

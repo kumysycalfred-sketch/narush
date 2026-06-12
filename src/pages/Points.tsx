@@ -38,6 +38,7 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
 
   const ratingData = useMemo(() => stats.map(s => ({ name: s.name, count: s.count })), [stats]);
   const top12 = stats.slice(0, 12);
+  const maxCount = useMemo(() => stats.reduce((m, s) => Math.max(m, s.count), 0), [stats]);
 
   return (
     <div className="space-y-6">
@@ -76,7 +77,7 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
                 onClick={() => setSelectedPoint(s.name)}
                 className="cursor-pointer"
               >
-                <PointCard stats={s} />
+                <PointCard stats={s} maxCount={maxCount} />
               </div>
             ))}
           </div>

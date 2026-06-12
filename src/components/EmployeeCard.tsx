@@ -2,23 +2,24 @@ import { EmployeeStats } from '../types';
 
 interface Props {
   stats: EmployeeStats;
+  maxCount: number;
   onClick: () => void;
 }
 
-export default function EmployeeCard({ stats, onClick }: Props) {
+export default function EmployeeCard({ stats, onClick, maxCount }: Props) {
   const topCategories = Object.entries(stats.byCategory)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 2);
 
-  const hasPenalty = stats.meta3p['Лишение премии'] > 0;
+  const hasPenalty  = stats.meta3p['Лишение премии'] > 0;
   const hasForgiven = stats.meta3p['Прощение'] > 0;
+  const pct         = maxCount > 0 ? Math.round((stats.count / maxCount) * 100) : 0;
 
   return (
     <button
       onClick={onClick}
-      className="w-full text-left bg-card rounded-xl p-3.5 border border-border hover:border-accent/40 hover:shadow-md transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-accent/50"
+      className="w-full text-left bg-card rounded-xl p-3.5 border border-border hover:border-accent/40 hover:shadow-md hover:-translate-y-1 transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-accent/50"
     >
-      {/* Заголовок */}
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="min-w-0">
           <p className="text-primary font-semibold text-sm leading-tight truncate">{stats.name}</p>
@@ -32,7 +33,14 @@ export default function EmployeeCard({ stats, onClick }: Props) {
         </div>
       </div>
 
-      {/* Топ-2 категории */}
+      {/* Progress bar */}
+      <div className="h-1 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden mb-2">
+        <div
+          className="h-full rounded-full bg-danger/50 transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+
       {topCategories.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
           {topCategories.map(([cat, count]) => (
@@ -43,7 +51,6 @@ export default function EmployeeCard({ stats, onClick }: Props) {
         </div>
       )}
 
-      {/* 3-П бейджи */}
       <div className="flex gap-1.5 flex-wrap">
         {hasPenalty && (
           <span className="text-xs px-1.5 py-0.5 rounded-md bg-warning/10 text-warning font-mono">
