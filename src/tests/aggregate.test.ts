@@ -111,4 +111,12 @@ describe('filterByDate', () => {
     expect(result).toHaveLength(1);
     expect(result[0].date).toBe('15.06.26');
   });
+
+  it('filters with both from and to active', () => {
+    const from = new Date(2026, 5, 5, 0, 0, 0);
+    const to   = new Date(2026, 5, 10, 23, 59, 59);
+    const rows = [r('04.06.2026'), r('05.06.2026'), r('08.06.2026'), r('10.06.2026'), r('11.06.2026')];
+    const result = filterByDate(rows, { from, to });
+    expect(result.map(x => x.date)).toEqual(['05.06.2026', '08.06.2026', '10.06.2026']);
+  });
 });

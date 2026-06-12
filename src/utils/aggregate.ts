@@ -90,8 +90,9 @@ export function uniqueValues(rows: SheetRow[], key: keyof Pick<SheetRow, 'point'
   return [...new Set(rows.map(r => r[key] as string).filter(Boolean))].sort();
 }
 
+// Mirrors the DD.MM.YY / DD.MM.YYYY normalisation in dateToSortKey, but returns a Date object.
 function parseSheetDate(d: string): Date | null {
-  if (!d?.trim()) return null;
+  if (!d || !d.trim()) return null;
   const parts = d.split('.');
   if (parts.length < 3) return null;
   const [dd, mm, yy] = parts;
