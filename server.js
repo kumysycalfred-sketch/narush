@@ -33,6 +33,18 @@ app.get('/api/debug/headers', (req, res) => {
   res.json(headers);
 });
 
+app.get('/api/debug/department', (req, res) => {
+  if (!cache.csv) return res.status(503).json({ error: 'Cache not ready' });
+  const lines = cache.csv.split('\n');
+  const headers = lines[0].split(',').map(h => h.replace(/\n/g, ' ').trim().toLowerCase());
+  const iDept = headers.findIndex(h => h.includes('отдел'));
+  if (iDept < 0) return res.json({ error: 'Колонка отдел не найдена', headers });
+  const values = [...new Set(
+    lines.slice(1).map(l => (l.split(',')[iDept] || '').trim()).filter(Boolean)
+  )];
+  res.json({ columnIndex: iDept, uniqueValues: values });
+});
+
 app.get('/api/sheet', (req, res) => {
   if (!cache.csv) {
     return res.status(503).json({ error: 'Data not ready, try again in a few seconds' });
