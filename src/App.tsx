@@ -40,6 +40,7 @@ export default function App() {
   const [error, setError]           = useState<string | null>(null);
   const [updatedAt, setUpdatedAt]   = useState<string | null>(null);
   const [dateRange, setDateRange]   = useState<DateRange>({ from: null, to: null });
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -54,6 +55,12 @@ export default function App() {
     }
   }, []);
 
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
   useEffect(() => {
     load();
     const id = setInterval(load, 5 * 60 * 1000);
@@ -67,6 +74,7 @@ export default function App() {
       tab={tab} setTab={setTab}
       dark={dark} toggleTheme={toggle}
       updatedAt={updatedAt}
+      onRefresh={refresh} refreshing={refreshing}
       dateRange={dateRange} onDateChange={setDateRange}
     >
       {loading ? (

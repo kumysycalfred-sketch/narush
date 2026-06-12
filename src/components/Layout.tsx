@@ -14,12 +14,14 @@ interface LayoutProps {
   dark: boolean;
   toggleTheme: () => void;
   updatedAt: string | null;
+  onRefresh: () => void;
+  refreshing: boolean;
   dateRange: DateRange;
   onDateChange: (r: DateRange) => void;
   children: ReactNode;
 }
 
-export default function Layout({ tab, setTab, dark, toggleTheme, updatedAt, dateRange, onDateChange, children }: LayoutProps) {
+export default function Layout({ tab, setTab, dark, toggleTheme, updatedAt, onRefresh, refreshing, dateRange, onDateChange, children }: LayoutProps) {
   const timeLabel = updatedAt
     ? new Date(updatedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
     : null;
@@ -63,6 +65,23 @@ export default function Layout({ tab, setTab, dark, toggleTheme, updatedAt, date
                 обновлено {timeLabel}
               </span>
             )}
+            <button
+              onClick={onRefresh}
+              disabled={refreshing}
+              className="p-2 rounded-lg transition-all duration-200 active:scale-95 text-base disabled:opacity-50"
+              style={{
+                background: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                color: 'var(--text-secondary)',
+              }}
+              aria-label="Обновить данные"
+            >
+              <span
+                className="inline-block transition-transform"
+                style={{ animation: refreshing ? 'spin 0.8s linear infinite' : 'none' }}
+              >
+                🔄
+              </span>
+            </button>
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg transition-all duration-200 active:scale-95 text-base"

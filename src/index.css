@@ -82,3 +82,7 @@
   background-color: #0F1525;
   color: #F1F5F9;
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
