@@ -45,9 +45,8 @@ export default function Departments({ rows }: Props) {
 
   const kpis = [
     { label: 'Всего обработано',        value: filtered.filter(r => r.processor).length, color: '#3F3DC4', icon: '📋' },
-    { label: 'Сотрудников Обр. связи',  value: osCount,    color: '#6366F1', icon: '🔍' },
-    { label: 'Сотрудников Админ',       value: adminCount, color: '#F59E0B', icon: '👤' },
-    { label: 'Уникальных исп.',         value: stats.length, color: '#10B981', icon: '👥' },
+    { label: 'Обратная связь',          value: osCount,    color: '#6366F1', icon: '🔍' },
+    { label: 'Администраторы',          value: adminCount, color: '#F59E0B', icon: '👤' },
   ];
 
   const chartData = stats.slice(0, 15).map(s => ({
