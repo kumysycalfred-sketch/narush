@@ -28,8 +28,23 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('/api/debug/headers', (req, res) => {
   if (!cache.csv) return res.status(503).json({ error: 'Cache not ready' });
+  // Use a proper CSV-aware parse for the first row to handle quoted fields
   const firstLine = cache.csv.split('\n')[0];
-  const headers = firstLine.split(',').map((h, i) => ({ i, header: h.replace(/\n/g, ' ').trim() }));
+  const headers = [];
+  let i = 0, col = 0, cur = '';
+  while (i < firstLine.length) {
+    if (firstLine[i] === '"') {
+      i++;
+      while (i < firstLine.length && firstLine[i] !== '"') cur += firstLine[i++];
+      i++; // closing quote
+    } else if (firstLine[i] === ',') {
+      headers.push({ i: col++, header: cur.replace(/\n/g, ' ').trim() });
+      cur = ''; i++;
+    } else {
+      cur += firstLine[i++];
+    }
+  }
+  headers.push({ i: col, header: cur.replace(/\n/g, ' ').trim() });
   res.json(headers);
 });
 
