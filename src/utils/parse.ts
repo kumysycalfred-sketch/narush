@@ -47,6 +47,7 @@ export function parseRows(csv: string): SheetRow[] {
   const iMisdemean   = idx('проступки');
   const iName        = idx('фио');
   const iPosition    = idx('должность');
+  const iDepartment  = idx('отдел');
   const iMeta3p      = headers.findIndex(h => h.includes('3') && h.includes('п'));
   const iLink        = headers.findIndex(h => h === 'ссылка');
   const iRefund      = idx('сумма возврата');
@@ -67,9 +68,11 @@ export function parseRows(csv: string): SheetRow[] {
       misdemeanors: parseList(get(row, iMisdemean)),
       name:         get(row, iName),
       position:     get(row, iPosition),
+      department:   get(row, iDepartment),
       meta3p:       parseMeta3p(get(row, iMeta3p)),
       link:         get(row, iLink),
-      refund:       parseRefund(get(row, iRefund)),
+      // Администраторы не учитываются в сумме возврата
+      refund:       get(row, iDepartment).toLowerCase() === 'администратор' ? 0 : parseRefund(get(row, iRefund)),
       resolution:   get(row, iResolution),
     }))
     .filter(r => r.date || r.point);

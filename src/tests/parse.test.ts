@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseRefund, parseList, parseMeta3p, isGuestReview, isViolation } from '../utils/parse';
+import { parseRefund, parseList, parseMeta3p, isGuestReview, isViolation, parseRows } from '../utils/parse';
 
 describe('parseRefund', () => {
   it('parses "р.640,00"', () => expect(parseRefund('р.640,00')).toBe(640));
@@ -36,4 +36,29 @@ describe('isViolation', () => {
   it('"Возврат" → true', () => expect(isViolation('Возврат')).toBe(true));
   it('"Комплимент" → true', () => expect(isViolation('Комплимент')).toBe(true));
   it('empty string → true', () => expect(isViolation('')).toBe(true));
+});
+
+describe('department refund rule', () => {
+  const makeCSV = (department: string, refund: string) =>
+    `дата нарушения,точка,вид,источник,день,объект,категории нарушений,грубые нарушения,проступки,фио,должность,отдел,3п,ссылка,сумма возврата,решение\n01.06.2026,МЧС,Отзыв гостя,Телеграм,День,Кухня,ТТК,,,,Повар,${department},,, ${refund},Возврат`;
+
+  it('обнуляет refund если отдел = "администратор"', () => {
+    const rows = parseRows(makeCSV('администратор', '640,00'));
+    expect(rows[0].refund).toBe(0);
+  });
+
+  it('обнуляет refund при разном регистре "Администратор"', () => {
+    const rows = parseRows(makeCSV('Администратор', '640,00'));
+    expect(rows[0].refund).toBe(0);
+  });
+
+  it('сохраняет refund для других отделов', () => {
+    const rows = parseRows(makeCSV('кухня', '640,00'));
+    expect(rows[0].refund).toBe(640);
+  });
+
+  it('сохраняет refund если отдел не заполнен', () => {
+    const rows = parseRows(makeCSV('', '640,00'));
+    expect(rows[0].refund).toBe(640);
+  });
 });

@@ -10,6 +10,7 @@ export interface SheetRow {
   misdemeanors: string[];
   name: string;
   position: string;
+  department: string;
   meta3p: string;
   link: string;
   refund: number;
