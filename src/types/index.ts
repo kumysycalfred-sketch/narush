@@ -1,4 +1,5 @@
 export interface SheetRow {
+  processedAt: string;
   date: string;
   point: string;
   type: string;
