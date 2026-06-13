@@ -3,10 +3,10 @@ import { countBy, topN, buildEmployeeStats, buildPointStats, byDate, filterByDat
 import { SheetRow } from '../types';
 
 const base: SheetRow = {
-  date: '01.06', point: 'МЧС', type: 'Отзыв гостя', source: 'Телеграм',
+  processedAt: '', date: '01.06', point: 'МЧС', type: 'Отзыв гостя', source: 'Телеграм',
   shift: 'День', object: 'Кухня', categories: ['ТТК'], violations: ['Ошибка в технологии'],
   misdemeanors: [], name: 'Иванов Иван', position: 'Повар', department: '', processor: '',
-  meta3p: 'Прощение', refund: 640, statusOS: '', resolution: 'Возврат',
+  meta3p: 'Прощение', link: '', refund: 640, statusOS: '', resolution: 'Возврат',
 };
 const row1 = { ...base };
 const row2 = { ...base, categories: ['Сервис'], refund: 0, violations: [] };
@@ -81,43 +81,34 @@ describe('filterByDate', () => {
   it('returns all rows when range is empty', () => {
     expect(filterByDate([r('01.06.2026'), r('15.06.2026')], { from: null, to: null })).toHaveLength(2);
   });
-
   it('excludes rows before from date', () => {
-    const from = new Date(2026, 5, 5, 0, 0, 0); // June 5
+    const from = new Date(2026, 5, 5, 0, 0, 0);
     const result = filterByDate([r('04.06.2026'), r('05.06.2026'), r('06.06.2026')], { from, to: null });
     expect(result.map(x => x.date)).toEqual(['05.06.2026', '06.06.2026']);
   });
-
   it('excludes rows after to date', () => {
-    const to = new Date(2026, 5, 5, 23, 59, 59); // June 5 end
+    const to = new Date(2026, 5, 5, 23, 59, 59);
     const result = filterByDate([r('04.06.2026'), r('05.06.2026'), r('06.06.2026')], { from: null, to });
     expect(result.map(x => x.date)).toEqual(['04.06.2026', '05.06.2026']);
   });
-
   it('passes through rows with unparseable dates', () => {
-    const result = filterByDate([r('')], { from: new Date(), to: new Date() });
-    expect(result).toHaveLength(1);
+    expect(filterByDate([r('')], { from: new Date(), to: new Date() })).toHaveLength(1);
   });
-
   it('passes through rows with 2-part dates (no year)', () => {
-    const result = filterByDate([r('01.06')], { from: new Date(), to: new Date() });
-    expect(result).toHaveLength(1);
+    expect(filterByDate([r('01.06')], { from: new Date(), to: new Date() })).toHaveLength(1);
   });
-
   it('handles YY year format', () => {
     const from = new Date(2026, 5, 1, 0, 0, 0);
-    const to = new Date(2026, 5, 30, 23, 59, 59);
+    const to   = new Date(2026, 5, 30, 23, 59, 59);
     const result = filterByDate([r('15.06.26'), r('15.07.26')], { from, to });
     expect(result).toHaveLength(1);
     expect(result[0].date).toBe('15.06.26');
   });
-
   it('filters with both from and to active', () => {
     const from = new Date(2026, 5, 5, 0, 0, 0);
     const to   = new Date(2026, 5, 10, 23, 59, 59);
     const rows = [r('04.06.2026'), r('05.06.2026'), r('08.06.2026'), r('10.06.2026'), r('11.06.2026')];
-    const result = filterByDate(rows, { from, to });
-    expect(result.map(x => x.date)).toEqual(['05.06.2026', '08.06.2026', '10.06.2026']);
+    expect(filterByDate(rows, { from, to }).map(x => x.date)).toEqual(['05.06.2026', '08.06.2026', '10.06.2026']);
   });
 });
 
@@ -129,11 +120,9 @@ describe('sumCashRefund / sumBonusRefund', () => {
   it('sumCashRefund считает только строки без баллов', () => {
     expect(sumCashRefund([cash, bonus, combo])).toBe(500);
   });
-
   it('sumBonusRefund считает только строки с баллами', () => {
     expect(sumBonusRefund([cash, bonus, combo])).toBe(500);
   });
-
   it('пустой список → 0', () => {
     expect(sumCashRefund([])).toBe(0);
     expect(sumBonusRefund([])).toBe(0);
