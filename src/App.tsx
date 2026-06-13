@@ -96,7 +96,7 @@ export default function App() {
             {tab === 'overview'     && <Overview rows={dateFiltered} />}
             {tab === 'staff'        && <Staff rows={dateFiltered} />}
             {tab === 'points'       && <Points rows={dateFiltered} />}
-            {tab === 'departments'  && <Departments rows={dateFiltered} />}
+            {tab === 'departments'  && <Departments rows={rows} />}
           </motion.div>
         </AnimatePresence>
       )}
