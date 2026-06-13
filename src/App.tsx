@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { SheetRow, Tab, DateRange } from './types';
 import { fetchSheet } from './api/fetchSheet';
 import { parseRows } from './utils/parse';
-import { filterByDate } from './utils/aggregate';
+import { filterByDate, filterByProcessedAt } from './utils/aggregate';
 import { useTheme } from './hooks/useTheme';
 import Layout from './components/Layout';
 import { SkeletonPage } from './components/Skeleton';
@@ -69,7 +69,10 @@ export default function App() {
     return () => clearInterval(id);
   }, [load]);
 
+  // Обзор, Сотрудники, Точки — фильтр по дате нарушения
   const dateFiltered = useMemo(() => filterByDate(rows, dateRange), [rows, dateRange]);
+  // Отделы — фильтр по дате внесения (processedAt), т.к. отработка привязана к дню работы сотрудника
+  const deptFiltered = useMemo(() => filterByProcessedAt(rows, dateRange), [rows, dateRange]);
 
   return (
     <Layout
@@ -96,7 +99,7 @@ export default function App() {
             {tab === 'overview'     && <Overview rows={dateFiltered} />}
             {tab === 'staff'        && <Staff rows={dateFiltered} />}
             {tab === 'points'       && <Points rows={dateFiltered} />}
-            {tab === 'departments'  && <Departments rows={rows} />}
+            {tab === 'departments'  && <Departments rows={deptFiltered} />}
           </motion.div>
         </AnimatePresence>
       )}
