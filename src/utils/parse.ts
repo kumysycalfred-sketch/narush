@@ -36,6 +36,8 @@ export function parseRows(csv: string): SheetRow[] {
   const headers = rows[0].map(h => h.replace(/\n/g, ' ').trim().toLowerCase());
   const idx = (term: string) => headers.findIndex(h => h.includes(term));
 
+  // col0 — unnamed column, stores the date when the record was entered/processed
+  const iProcessedAt = 0;
   const iDate        = headers.findIndex(h => h.includes('дата') && h.includes('нарушения'));
   const iPoint       = idx('точка');
   const iType        = headers.findIndex(h => h === 'вид');
@@ -59,6 +61,7 @@ export function parseRows(csv: string): SheetRow[] {
 
   return rows.slice(1)
     .map(row => ({
+      processedAt:  get(row, iProcessedAt),
       date:         get(row, iDate),
       point:        get(row, iPoint),
       type:         get(row, iType),
@@ -74,7 +77,6 @@ export function parseRows(csv: string): SheetRow[] {
       processor:    get(row, iProcessor),
       meta3p:       parseMeta3p(get(row, iMeta3p)),
       link:         get(row, iLink),
-      // Администраторы не учитываются в сумме возврата (значения: "Админ", "администратор" и др.)
       refund:       get(row, iDepartment).toLowerCase().includes('адм') ? 0 : parseRefund(get(row, iRefund)),
       statusOS:     get(row, iStatusOS),
       resolution:   get(row, iResolution),
