@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { SheetRow, ProcessorStats } from '../types';
 import { buildProcessorStats, byProcessedDate } from '../utils/aggregate';
 import DayChart from '../components/DayChart';
+import ProcessorModal from '../components/ProcessorModal';
 
 interface Props { rows: SheetRow[] }
 
@@ -17,7 +18,15 @@ function initials(name: string): string {
   return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
 
-function DeptSection({ dept, stats }: { dept: string; stats: ProcessorStats[] }) {
+function DeptSection({
+  dept,
+  stats,
+  onSelect,
+}: {
+  dept: string;
+  stats: ProcessorStats[];
+  onSelect: (s: ProcessorStats) => void;
+}) {
   const cfg = DEPT_CONFIG[dept] ?? { color: '#64748B', bg: 'rgba(100,116,139,0.12)', icon: '👥', label: dept };
   const max = stats[0]?.count ?? 1;
 
@@ -47,14 +56,20 @@ function DeptSection({ dept, stats }: { dept: string; stats: ProcessorStats[] })
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.04, duration: 0.25 }}
-              className="px-5 py-3.5 flex items-center gap-3 hover:bg-accent/5 transition-colors duration-100"
+              className="px-5 py-3.5 flex items-center gap-3 hover:bg-accent/5 transition-colors duration-100 cursor-pointer group"
+              onClick={() => onSelect(s)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => e.key === 'Enter' && onSelect(s)}
             >
               <span className="text-secondary text-xs font-mono w-5 shrink-0 text-center">{i + 1}</span>
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style={{ background: cfg.color }}>
                 {initials(s.name)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-primary text-sm font-medium truncate">{s.name}</p>
+                <p className="text-primary text-sm font-medium truncate group-hover:underline underline-offset-2" style={{ color: cfg.color }}>
+                  {s.name}
+                </p>
                 <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-color)' }}>
                   <motion.div
                     className="h-full rounded-full"
@@ -75,14 +90,15 @@ function DeptSection({ dept, stats }: { dept: string; stats: ProcessorStats[] })
 }
 
 export default function Departments({ rows }: Props) {
-  const [filterDept, setFilterDept] = useState('');
+  const [filterDept, setFilterDept]           = useState('');
+  const [selectedProcessor, setSelectedProcessor] = useState<ProcessorStats | null>(null);
 
   const deptRows = useMemo(() =>
     rows.filter(r => KNOWN_DEPTS.includes(r.department)),
     [rows]
   );
 
-  const allStats      = useMemo(() => buildProcessorStats(deptRows), [deptRows]);
+  const allStats       = useMemo(() => buildProcessorStats(deptRows), [deptRows]);
   const totalProcessed = deptRows.filter(r => r.processor).length;
   const osByDept       = useMemo(() => allStats.filter(s => s.department === 'Обратная связь'), [allStats]);
   const adminByDept    = useMemo(() => allStats.filter(s => s.department.toLowerCase().includes('адм')), [allStats]);
@@ -90,7 +106,6 @@ export default function Departments({ rows }: Props) {
   const sections = filterDept ? KNOWN_DEPTS.filter(d => d === filterDept) : KNOWN_DEPTS;
   const statsForDept = (dept: string) => allStats.filter(s => s.department === dept);
 
-  // Динамика отработки — только строки с заполненным процессором
   const processingDays = useMemo(() => {
     const src = filterDept
       ? deptRows.filter(r => r.department === filterDept && r.processor)
@@ -151,7 +166,12 @@ export default function Departments({ rows }: Props) {
       {/* Секции по отделам */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {sections.map(dept => (
-          <DeptSection key={dept} dept={dept} stats={statsForDept(dept)} />
+          <DeptSection
+            key={dept}
+            dept={dept}
+            stats={statsForDept(dept)}
+            onSelect={setSelectedProcessor}
+          />
         ))}
       </div>
 
@@ -159,6 +179,13 @@ export default function Departments({ rows }: Props) {
       {processingDays.length > 0 && (
         <DayChart data={processingDays} title="Динамика отработки по дням" />
       )}
+
+      {/* Модалка сотрудника */}
+      <ProcessorModal
+        selected={selectedProcessor}
+        rows={rows}
+        onClose={() => setSelectedProcessor(null)}
+      />
     </div>
   );
 }
