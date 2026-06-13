@@ -58,7 +58,6 @@ export function buildPointStats(rows: SheetRow[]): PointStats[] {
 }
 
 function dateToSortKey(d: string): string {
-  // Normalise DD.MM.YY and DD.MM.YYYY → YYYYMMDD for correct chronological sort
   const parts = d.split('.');
   if (parts.length !== 3) return d;
   const [dd, mm, yy] = parts;
@@ -67,7 +66,6 @@ function dateToSortKey(d: string): string {
 }
 
 export function byDate(rows: SheetRow[]): { date: string; count: number }[] {
-  // Normalise inconsistent date formats (e.g. "06.06.2026" vs "06.06.26") before grouping
   const counts: Record<string, number> = {};
   rows.forEach(r => {
     if (!r.date) return;
@@ -102,7 +100,6 @@ export function uniqueValues(rows: SheetRow[], key: keyof Pick<SheetRow, 'point'
   return [...new Set(rows.map(r => r[key] as string).filter(Boolean))].sort();
 }
 
-// Mirrors the DD.MM.YY / DD.MM.YYYY normalisation in dateToSortKey, but returns a Date object.
 function parseSheetDate(d: string): Date | null {
   if (!d || !d.trim()) return null;
   const parts = d.split('.');
@@ -128,6 +125,19 @@ export function filterByDate(rows: SheetRow[], range: DateRange): SheetRow[] {
   if (!range.from && !range.to) return rows;
   return rows.filter(r => {
     const d = parseSheetDate(r.date);
+    if (!d) return true;
+    if (range.from && d < range.from) return false;
+    if (range.to && d > range.to) return false;
+    return true;
+  });
+}
+
+// Фильтрует по дате внесения записи (col0 = processedAt),
+// используется для вкладки Отделы — там важно когда обработали, а не когда было нарушение.
+export function filterByProcessedAt(rows: SheetRow[], range: DateRange): SheetRow[] {
+  if (!range.from && !range.to) return rows;
+  return rows.filter(r => {
+    const d = parseSheetDate(r.processedAt);
     if (!d) return true;
     if (range.from && d < range.from) return false;
     if (range.to && d > range.to) return false;
