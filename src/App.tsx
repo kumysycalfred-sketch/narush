@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { SheetRow, Tab, DateRange } from './types';
 import { fetchSheet } from './api/fetchSheet';
 import { parseRows } from './utils/parse';
-import { filterByDate, filterByProcessedAt } from './utils/aggregate';
+import { filterByDate, filterByProcessedAt, getPrevRange } from './utils/aggregate';
 import { useTheme } from './hooks/useTheme';
 import Layout from './components/Layout';
 import { SkeletonPage } from './components/Skeleton';
@@ -14,8 +14,8 @@ import Departments from './pages/Departments';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10 },
-  enter: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -10 },
+  enter:   { opacity: 1, y: 0  },
+  exit:    { opacity: 0, y: -10 },
 };
 
 function ErrorBanner({ error, onRetry }: { error: string; onRetry: () => void }) {
@@ -69,10 +69,14 @@ export default function App() {
     return () => clearInterval(id);
   }, [load]);
 
-  // Обзор, Сотрудники, Точки — фильтр по дате нарушения
+  // Обзор / Сотрудники / Точки — фильтр по дате нарушения
   const dateFiltered = useMemo(() => filterByDate(rows, dateRange), [rows, dateRange]);
-  // Отделы — фильтр по дате внесения (processedAt), т.к. отработка привязана к дню работы сотрудника
+  // Отделы — фильтр по дате внесения (processedAt)
   const deptFiltered = useMemo(() => filterByProcessedAt(rows, dateRange), [rows, dateRange]);
+  // Предыдущий период для сравнения на вкладке Обзор
+  const prevRange    = useMemo(() => getPrevRange(dateRange), [dateRange]);
+  const prevFiltered = useMemo(() => filterByDate(rows, prevRange), [rows, prevRange]);
+  const showCompare  = !!(dateRange.from || dateRange.to);
 
   return (
     <Layout
@@ -96,10 +100,10 @@ export default function App() {
             exit="exit"
             transition={{ duration: 0.2 }}
           >
-            {tab === 'overview'     && <Overview rows={dateFiltered} />}
-            {tab === 'staff'        && <Staff rows={dateFiltered} />}
-            {tab === 'points'       && <Points rows={dateFiltered} />}
-            {tab === 'departments'  && <Departments rows={deptFiltered} />}
+            {tab === 'overview'    && <Overview rows={dateFiltered} prevRows={prevFiltered} showCompare={showCompare} />}
+            {tab === 'staff'       && <Staff rows={dateFiltered} />}
+            {tab === 'points'      && <Points rows={dateFiltered} />}
+            {tab === 'departments' && <Departments rows={deptFiltered} />}
           </motion.div>
         </AnimatePresence>
       )}
