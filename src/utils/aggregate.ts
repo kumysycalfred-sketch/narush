@@ -80,6 +80,21 @@ export function byDate(rows: SheetRow[]): { date: string; count: number }[] {
     .map(([date, count]) => ({ date, count }));
 }
 
+export function byProcessedDate(rows: SheetRow[]): { date: string; count: number }[] {
+  const counts: Record<string, number> = {};
+  rows.forEach(r => {
+    if (!r.processedAt) return;
+    const parts = r.processedAt.split('.');
+    const key = parts.length >= 3
+      ? `${parts[0].padStart(2, '0')}.${parts[1].padStart(2, '0')}`
+      : r.processedAt;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .sort(([a], [b]) => dateToSortKey(a).localeCompare(dateToSortKey(b)))
+    .map(([date, count]) => ({ date, count }));
+}
+
 export function sumRefund(rows: SheetRow[]): number {
   return rows.reduce((sum, r) => sum + r.refund, 0);
 }
@@ -132,8 +147,6 @@ export function filterByDate(rows: SheetRow[], range: DateRange): SheetRow[] {
   });
 }
 
-// Фильтрует по дате внесения записи (col0 = processedAt),
-// используется для вкладки Отделы — там важно когда обработали, а не когда было нарушение.
 export function filterByProcessedAt(rows: SheetRow[], range: DateRange): SheetRow[] {
   if (!range.from && !range.to) return rows;
   return rows.filter(r => {
@@ -143,4 +156,28 @@ export function filterByProcessedAt(rows: SheetRow[], range: DateRange): SheetRo
     if (range.to && d > range.to) return false;
     return true;
   });
+}
+
+// Возвращает предыдущий период той же длины, непосредственно перед текущим.
+export function getPrevRange(range: DateRange): DateRange {
+  if (!range.from || !range.to) return { from: null, to: null };
+  const durationMs = range.to.getTime() - range.from.getTime() + 86400000;
+  const prevTo   = new Date(range.from.getTime() - 86400000);
+  const prevFrom = new Date(prevTo.getTime() - durationMs + 86400000);
+  return { from: prevFrom, to: prevTo };
+}
+
+// Тепловая карта нарушений по сменам: топ-15 точек × день/ночь.
+export function buildShiftHeatmap(rows: SheetRow[]): { point: string; day: number; night: number }[] {
+  const map = new Map<string, { day: number; night: number }>();
+  rows.filter(r => r.point).forEach(r => {
+    if (!map.has(r.point)) map.set(r.point, { day: 0, night: 0 });
+    const s = map.get(r.point)!;
+    if (r.shift.toLowerCase().includes('ноч')) s.night++;
+    else s.day++;
+  });
+  return [...map.entries()]
+    .map(([point, v]) => ({ point, ...v }))
+    .sort((a, b) => (b.day + b.night) - (a.day + a.night))
+    .slice(0, 15);
 }
