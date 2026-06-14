@@ -8,6 +8,7 @@ import DonutChart from '../components/DonutChart';
 import DayChart from '../components/DayChart';
 import ShiftHeatmap from '../components/ShiftHeatmap';
 import PointModal from '../components/PointModal';
+import DayRecordsModal from '../components/DayRecordsModal';
 
 const SELECT_CLASS =
   'px-3 py-2 rounded-lg bg-card border border-[var(--border-color)] text-primary text-sm focus:outline-none focus:ring-2 focus:ring-accent';
@@ -60,6 +61,7 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
   const [filterObject, setFilterObject]   = useState('');
   const [filterPoint, setFilterPoint]     = useState('');
   const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
+  const [selectedDay, setSelectedDay]     = useState<string | null>(null);
 
   const allPoints = useMemo(() => uniqueValues(rows, 'point'), [rows]);
 
@@ -110,6 +112,12 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
   const sources     = useMemo(() => topN(countBy(filtered, r => r.source), 8), [filtered]);
   const heatmap     = useMemo(() => buildShiftHeatmap(filtered), [filtered]);
 
+  // Записи за выбранный день (по дате нарушения, формат DD.MM без года)
+  const dayRecords = useMemo(
+    () => selectedDay ? filtered.filter(r => r.date.startsWith(selectedDay + '.')) : [],
+    [filtered, selectedDay]
+  );
+
   const reset = () => { setFilterType(''); setFilterObject(''); setFilterPoint(''); };
   const hasFilter = filterType || filterObject || filterPoint;
 
@@ -157,7 +165,7 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
         />
         <BarChart data={categories} title="Категории нарушений" color="#D32B38" />
         <DonutChart data={resolutions} title="Решение по обращению" />
-        <DayChart data={days} title="Динамика по дням" />
+        <DayChart data={days} title="Динамика по дням" onBarClick={setSelectedDay} />
         <BarChart data={sources} title="Источник отзыва" color="#D6850A" />
         {heatmap.length > 0 && (
           <ShiftHeatmap data={heatmap} title="Нарушения: день vs ночь по точкам" />
@@ -165,6 +173,7 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
       </div>
 
       <PointModal pointName={selectedPoint} allRows={filtered} onClose={() => setSelectedPoint(null)} />
+      <DayRecordsModal date={selectedDay} records={dayRecords} onClose={() => setSelectedDay(null)} />
     </div>
   );
 }
