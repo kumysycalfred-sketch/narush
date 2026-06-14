@@ -4,6 +4,7 @@ import { SheetRow, ProcessorStats } from '../types';
 import { buildProcessorStats, byProcessedDate } from '../utils/aggregate';
 import DayChart from '../components/DayChart';
 import ProcessorModal from '../components/ProcessorModal';
+import DayRecordsModal from '../components/DayRecordsModal';
 
 interface Props { rows: SheetRow[] }
 
@@ -67,7 +68,7 @@ function DeptSection({
                 {initials(s.name)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-primary text-sm font-medium truncate group-hover:underline underline-offset-2" style={{ color: cfg.color }}>
+                <p className="text-sm font-medium truncate group-hover:underline underline-offset-2" style={{ color: cfg.color }}>
                   {s.name}
                 </p>
                 <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-color)' }}>
@@ -90,8 +91,9 @@ function DeptSection({
 }
 
 export default function Departments({ rows }: Props) {
-  const [filterDept, setFilterDept]           = useState('');
+  const [filterDept, setFilterDept]               = useState('');
   const [selectedProcessor, setSelectedProcessor] = useState<ProcessorStats | null>(null);
+  const [selectedDay, setSelectedDay]             = useState<string | null>(null);
 
   const deptRows = useMemo(() =>
     rows.filter(r => KNOWN_DEPTS.includes(r.department)),
@@ -112,6 +114,12 @@ export default function Departments({ rows }: Props) {
       : deptRows.filter(r => r.processor);
     return byProcessedDate(src);
   }, [deptRows, filterDept]);
+
+  // Записи за выбранный день (по дате занесения)
+  const dayRecords = useMemo(
+    () => selectedDay ? rows.filter(r => r.processedAt.startsWith(selectedDay + '.')) : [],
+    [rows, selectedDay]
+  );
 
   return (
     <div className="space-y-6">
@@ -177,14 +185,22 @@ export default function Departments({ rows }: Props) {
 
       {/* Динамика отработки по дням */}
       {processingDays.length > 0 && (
-        <DayChart data={processingDays} title="Динамика отработки по дням" />
+        <DayChart
+          data={processingDays}
+          title="Динамика отработки по дням"
+          onBarClick={setSelectedDay}
+        />
       )}
 
-      {/* Модалка сотрудника */}
       <ProcessorModal
         selected={selectedProcessor}
         rows={rows}
         onClose={() => setSelectedProcessor(null)}
+      />
+      <DayRecordsModal
+        date={selectedDay}
+        records={dayRecords}
+        onClose={() => setSelectedDay(null)}
       />
     </div>
   );
