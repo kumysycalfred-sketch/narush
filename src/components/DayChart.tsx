@@ -4,7 +4,6 @@ import {
   Tooltip, CartesianGrid, Cell,
 } from 'recharts';
 
-// ─── Tooltip ────────────────────────────────────────────────
 function ChartTooltip({ active, payload, label }: {
   active?: boolean;
   payload?: { value: number }[];
@@ -24,6 +23,7 @@ function ChartTooltip({ active, payload, label }: {
       <p style={{ color: '#6366F1', fontSize: 14, fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>
         {payload[0].value} <span style={{ color: '#94A3B8', fontWeight: 400, fontSize: 11 }}>записей</span>
       </p>
+      <p style={{ color: '#64748B', fontSize: 10, marginTop: 3 }}>нажмите для деталей</p>
     </div>
   );
 }
@@ -31,9 +31,10 @@ function ChartTooltip({ active, payload, label }: {
 interface Props {
   data: { date: string; count: number }[];
   title: string;
+  onBarClick?: (date: string) => void;
 }
 
-export default function DayChart({ data, title }: Props) {
+export default function DayChart({ data, title, onBarClick }: Props) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   if (!data.length) return null;
 
@@ -43,7 +44,15 @@ export default function DayChart({ data, title }: Props) {
     <div className="bg-card rounded-xl p-5">
       <h3 className="text-primary font-semibold text-sm mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={data} margin={{ left: -16 }}>
+        <BarChart
+          data={data}
+          margin={{ left: -16 }}
+          onClick={e => {
+            if (onBarClick && e?.activePayload?.[0]) {
+              onBarClick(e.activePayload[0].payload.date as string);
+            }
+          }}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
           <XAxis
             dataKey="date"
@@ -68,11 +77,11 @@ export default function DayChart({ data, title }: Props) {
             animationDuration={600}
             onMouseEnter={(_, i) => setActiveIndex(i)}
             onMouseLeave={() => setActiveIndex(null)}
+            style={{ cursor: onBarClick ? 'pointer' : 'default' }}
           >
             {data.map((d, i) => {
               const intensity = max > 0 ? d.count / max : 0;
               const isActive = activeIndex === i;
-              // Цвет: высокие значения → accent, низкие → приглушённый
               const opacity = isActive ? 1 : 0.45 + intensity * 0.55;
               return (
                 <Cell
@@ -81,7 +90,7 @@ export default function DayChart({ data, title }: Props) {
                   fillOpacity={opacity}
                   stroke={isActive ? '#A78BFA' : 'transparent'}
                   strokeWidth={isActive ? 1.5 : 0}
-                  style={{ transition: 'fill-opacity 0.15s', cursor: 'default' }}
+                  style={{ transition: 'fill-opacity 0.15s' }}
                 />
               );
             })}
