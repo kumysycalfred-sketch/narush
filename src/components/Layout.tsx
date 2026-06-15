@@ -48,20 +48,28 @@ export default function Layout({
               aria-label="На главную"
             >
               <div
-                className="w-7 h-7 rounded flex items-center justify-center shrink-0 transition-opacity duration-200 group-hover:opacity-80"
+                className="w-8 h-8 rounded flex items-center justify-center shrink-0 transition-opacity duration-200 group-hover:opacity-80"
                 style={{ backgroundColor: 'var(--accent)' }}
               >
-                <span className="font-display font-700 text-xs leading-none"
+                <span className="font-display text-xs leading-none"
                   style={{ color: dark ? '#0F1115' : '#fff', fontWeight: 700 }}>
                   КК
                 </span>
               </div>
-              <span
-                className="font-display font-semibold text-sm tracking-tight hidden sm:block"
-                style={{ color: 'var(--text-primary)' }}
-              >
-                Контроль качества
-              </span>
+              <div className="hidden sm:flex flex-col leading-none gap-0.5">
+                <span
+                  className="text-[10px] font-mono tracking-widest uppercase"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  by LNFRG
+                </span>
+                <span
+                  className="font-display font-semibold text-sm tracking-tight"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  Контроль качества
+                </span>
+              </div>
             </button>
 
             {/* Right controls */}
