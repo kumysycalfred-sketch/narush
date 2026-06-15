@@ -21,14 +21,8 @@ export default function KpiCard({ label, value, sub, format = 'number', trend }:
       : animated.toLocaleString('ru-RU');
 
   return (
-    <div className="px-5 py-4 min-w-0">
-      <p
-        className="text-[10px] font-sans font-medium uppercase tracking-widest leading-tight mb-1.5"
-        style={{ color: 'var(--text-secondary)' }}
-      >
-        {label}
-      </p>
-      <div className="flex items-baseline gap-2">
+    <div className="px-5 py-4 min-w-0 flex flex-col">
+      <div className="flex items-baseline gap-2 mb-1.5">
         <p
           className="font-display font-semibold leading-none"
           style={{ color: 'var(--text-primary)', fontSize: '1.75rem' }}
@@ -44,6 +38,12 @@ export default function KpiCard({ label, value, sub, format = 'number', trend }:
           </span>
         )}
       </div>
+      <p
+        className="text-[10px] font-sans font-medium uppercase tracking-widest leading-tight"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        {label}
+      </p>
       {sub && (
         <p
           className="text-[10px] font-sans mt-1 leading-tight"
