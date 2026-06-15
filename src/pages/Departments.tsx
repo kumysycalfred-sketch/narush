@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SheetRow, ProcessorStats } from '../types';
-import { buildProcessorStats, byProcessedDate } from '../utils/aggregate';
+import { buildProcessorStats, byProcessedDate, normShortDate } from '../utils/aggregate';
 import DayChart from '../components/DayChart';
 import ProcessorModal from '../components/ProcessorModal';
 import DayRecordsModal from '../components/DayRecordsModal';
@@ -115,10 +115,11 @@ export default function Departments({ rows }: Props) {
     return byProcessedDate(src);
   }, [deptRows, filterDept]);
 
-  // Записи за выбранный день (по дате занесения)
+  // БАГ 1: используем deptRows (только KNOWN_DEPTS), а не все rows
+  // БАГ 2: нормализуем processedAt к "DD.MM" перед сравнением
   const dayRecords = useMemo(
-    () => selectedDay ? rows.filter(r => r.processedAt.startsWith(selectedDay + '.')) : [],
-    [rows, selectedDay]
+    () => selectedDay ? deptRows.filter(r => normShortDate(r.processedAt) === selectedDay) : [],
+    [deptRows, selectedDay]
   );
 
   return (
@@ -192,9 +193,10 @@ export default function Departments({ rows }: Props) {
         />
       )}
 
+      {/* БАГ 4: передаём deptRows (только KNOWN_DEPTS), а не все rows */}
       <ProcessorModal
         selected={selectedProcessor}
-        rows={rows}
+        rows={deptRows}
         onClose={() => setSelectedProcessor(null)}
       />
       <DayRecordsModal

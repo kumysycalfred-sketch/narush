@@ -91,11 +91,11 @@ describe('filterByDate', () => {
     const result = filterByDate([r('04.06.2026'), r('05.06.2026'), r('06.06.2026')], { from: null, to });
     expect(result.map(x => x.date)).toEqual(['04.06.2026', '05.06.2026']);
   });
-  it('passes through rows with unparseable dates', () => {
-    expect(filterByDate([r('')], { from: new Date(), to: new Date() })).toHaveLength(1);
+  it('excludes rows with unparseable dates when filter is active', () => {
+    expect(filterByDate([r('')], { from: new Date(), to: new Date() })).toHaveLength(0);
   });
-  it('passes through rows with 2-part dates (no year)', () => {
-    expect(filterByDate([r('01.06')], { from: new Date(), to: new Date() })).toHaveLength(1);
+  it('excludes rows with 2-part dates (no year) when filter is active', () => {
+    expect(filterByDate([r('01.06')], { from: new Date(), to: new Date() })).toHaveLength(0);
   });
   it('handles YY year format', () => {
     const from = new Date(2026, 5, 1, 0, 0, 0);

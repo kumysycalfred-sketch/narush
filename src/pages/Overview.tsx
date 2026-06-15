@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { SheetRow } from '../types';
-import { countBy, topN, byDate, sumCashRefund, sumBonusRefund, uniqueValues, buildShiftHeatmap } from '../utils/aggregate';
+import { countBy, topN, byDate, sumCashRefund, sumBonusRefund, uniqueValues, buildShiftHeatmap, normShortDate } from '../utils/aggregate';
 import { isGuestReview, isViolation } from '../utils/parse';
 import KpiRow from '../components/KpiRow';
 import BarChart from '../components/BarChart';
@@ -86,7 +86,8 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
     { label: 'Всего записей',    value: filtered.length,          color: '#3F3DC4', icon: '📋' },
     {
       label: 'Отзывов гостей',   value: guestRows.length,
-      sub: `доп/адм: ${filtered.length - guestRows.length}`,
+      // БАГ 8: исключаем строки с пустым type, чтобы не завышать счётчик "доп/адм"
+      sub: `доп/адм: ${filtered.filter(r => r.type && !isGuestReview(r.type)).length}`,
       color: '#6B7280',          icon: '💬',
     },
     { label: 'С нарушениями',    value: withViolation.length,     color: '#D32B38', icon: '⚠️' },
@@ -112,9 +113,9 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
   const sources     = useMemo(() => topN(countBy(filtered, r => r.source), 8), [filtered]);
   const heatmap     = useMemo(() => buildShiftHeatmap(filtered), [filtered]);
 
-  // Записи за выбранный день (по дате нарушения, формат DD.MM без года)
+  // БАГ 2: нормализуем r.date к "DD.MM" перед сравнением, чтобы "9.6.26" == "09.06"
   const dayRecords = useMemo(
-    () => selectedDay ? filtered.filter(r => r.date.startsWith(selectedDay + '.')) : [],
+    () => selectedDay ? filtered.filter(r => normShortDate(r.date) === selectedDay) : [],
     [filtered, selectedDay]
   );
 

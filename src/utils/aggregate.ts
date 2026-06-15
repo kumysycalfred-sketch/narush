@@ -59,10 +59,22 @@ export function buildPointStats(rows: SheetRow[]): PointStats[] {
 
 function dateToSortKey(d: string): string {
   const parts = d.split('.');
+  // БАГ 5: "DD.MM" (2 части) — сортируем как MMDD чтобы не ломать порядок при переходе месяца
+  if (parts.length === 2) {
+    const [dd, mm] = parts;
+    return `${mm.padStart(2, '0')}${dd.padStart(2, '0')}`;
+  }
   if (parts.length !== 3) return d;
   const [dd, mm, yy] = parts;
   const year = yy.length === 2 ? `20${yy}` : yy;
   return `${year}${mm.padStart(2, '0')}${dd.padStart(2, '0')}`;
+}
+
+// Нормализует дату к формату "DD.MM" (с нулями), используется для фильтрации dayRecords
+export function normShortDate(d: string): string {
+  const parts = d.split('.');
+  if (parts.length < 2) return d;
+  return `${parts[0].padStart(2, '0')}.${parts[1].padStart(2, '0')}`;
 }
 
 export function byDate(rows: SheetRow[]): { date: string; count: number }[] {
@@ -126,21 +138,30 @@ function parseSheetDate(d: string): Date | null {
 }
 
 export function buildProcessorStats(rows: SheetRow[]): ProcessorStats[] {
-  const map = new Map<string, ProcessorStats>();
+  const countMap = new Map<string, { deptCounts: Record<string, number>; count: number }>();
   rows.filter(r => r.processor).forEach(r => {
-    if (!map.has(r.processor)) {
-      map.set(r.processor, { name: r.processor, department: r.department, count: 0 });
+    if (!countMap.has(r.processor)) {
+      countMap.set(r.processor, { deptCounts: {}, count: 0 });
     }
-    map.get(r.processor)!.count++;
+    const entry = countMap.get(r.processor)!;
+    entry.count++;
+    // БАГ 6: накапливаем счётчик по отделам, берём наиболее частый
+    if (r.department) entry.deptCounts[r.department] = (entry.deptCounts[r.department] || 0) + 1;
   });
-  return [...map.values()].sort((a, b) => b.count - a.count);
+  return [...countMap.entries()]
+    .map(([name, { deptCounts, count }]) => {
+      const department = Object.entries(deptCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '';
+      return { name, department, count };
+    })
+    .sort((a, b) => b.count - a.count);
 }
 
 export function filterByDate(rows: SheetRow[], range: DateRange): SheetRow[] {
   if (!range.from && !range.to) return rows;
   return rows.filter(r => {
     const d = parseSheetDate(r.date);
-    if (!d) return true;
+    // БАГ 3: строки без парсируемой даты исключаем при активном фильтре
+    if (!d) return false;
     if (range.from && d < range.from) return false;
     if (range.to && d > range.to) return false;
     return true;
@@ -151,7 +172,8 @@ export function filterByProcessedAt(rows: SheetRow[], range: DateRange): SheetRo
   if (!range.from && !range.to) return rows;
   return rows.filter(r => {
     const d = parseSheetDate(r.processedAt);
-    if (!d) return true;
+    // БАГ 3: строки без парсируемой даты исключаем при активном фильтре
+    if (!d) return false;
     if (range.from && d < range.from) return false;
     if (range.to && d > range.to) return false;
     return true;
