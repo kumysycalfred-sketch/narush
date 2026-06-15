@@ -4,85 +4,67 @@
 
 @layer base {
   :root {
-    --bg-base:        #F5F6FA;
-    --bg-card:        #FFFFFF;
-    --text-primary:   #0F172A;
-    --text-secondary: #64748B;
-    --border-color:   #E2E8F0;
+    --bg-base:        #F0EDE6;
+    --bg-card:        #FAFAF8;
+    --bg-elevated:    #F5F2EC;
+    --text-primary:   #1C1E24;
+    --text-secondary: #827F79;
+    --border-color:   #E0DDD6;
+    --accent:         #7CA52A;
   }
 
   .dark {
-    --bg-base:        #0A0E1A;
-    --bg-card:        rgba(255, 255, 255, 0.04);
-    --text-primary:   #F1F5F9;
-    --text-secondary: #94A3B8;
-    --border-color:   rgba(255, 255, 255, 0.08);
+    --bg-base:        #0F1115;
+    --bg-card:        #171C26;
+    --bg-elevated:    #1E2533;
+    --text-primary:   #E4E1DA;
+    --text-secondary: #636878;
+    --border-color:   #252B38;
+    --accent:         #B8F04A;
   }
 
   body {
     background-color: var(--bg-base);
     color: var(--text-primary);
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.25s, color 0.25s;
     @apply font-sans antialiased;
+  }
+
+  * {
+    border-color: var(--border-color);
   }
 }
 
-/* ─── Glassmorphism: все bg-card в тёмной теме получают backdrop-blur ─── */
-.dark .bg-card {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* ─── Recharts tooltip ─── */
+.recharts-tooltip-wrapper > div {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important;
 }
-
-/* ─── Ambient glow orbs — видны сквозь glass-карточки ─── */
-.dark body::before {
-  content: '';
-  position: fixed;
-  top: -25%;
-  left: -12%;
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, transparent 65%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.dark body::after {
-  content: '';
-  position: fixed;
-  bottom: -20%;
-  right: -8%;
-  width: 650px;
-  height: 650px;
-  background: radial-gradient(circle, rgba(244, 63, 94, 0.09) 0%, transparent 65%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Контент выше орбов */
-#root {
-  position: relative;
-  z-index: 1;
-}
-
-/* ─── Tooltip Recharts в тёмной теме ─── */
 .dark .recharts-tooltip-wrapper > div {
-  background: rgba(12, 16, 32, 0.96) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #1E2533 !important;
+  border-color: #252B38 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
 }
 
-/* ─── Hover shadow для карточек в тёмной теме ─── */
-.dark .hover\:shadow-md:hover {
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.14);
-}
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-/* ─── Select-элементы в тёмной теме ─── */
+/* ─── Select dropdown options ─── */
 .dark select option {
-  background-color: #0F1525;
-  color: #F1F5F9;
+  background-color: #1E2533;
+  color: var(--text-primary);
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
 }

@@ -32,7 +32,7 @@ function DeptSection({
   const max = stats[0]?.count ?? 1;
 
   return (
-    <div className="bg-card rounded-2xl overflow-hidden flex flex-col">
+    <div className="rounded-lg overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
       <div className="px-5 py-4 flex items-center gap-3" style={{ borderBottom: '1px solid var(--border-color)' }}>
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ background: cfg.bg }}>
           {cfg.icon}
@@ -126,8 +126,8 @@ export default function Departments({ rows }: Props) {
     <div className="space-y-6">
       {/* KPI панель */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="bg-card rounded-2xl p-5 col-span-2 sm:col-span-1 flex items-center gap-4">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ background: 'rgba(63,61,196,0.12)' }}>
+        <div className="rounded-lg p-5 col-span-2 sm:col-span-1 flex items-center gap-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div className="w-11 h-11 rounded-lg flex items-center justify-center text-xl shrink-0" style={{ background: 'var(--bg-elevated)' }}>
             📋
           </div>
           <div>
@@ -135,22 +135,22 @@ export default function Departments({ rows }: Props) {
             <p className="text-primary text-2xl font-bold">{totalProcessed}</p>
           </div>
         </div>
-        <div className="bg-card rounded-2xl p-5 flex items-center gap-4">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ background: 'rgba(99,102,241,0.12)' }}>
+        <div className="rounded-lg p-5 flex items-center gap-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div className="w-11 h-11 rounded-lg flex items-center justify-center text-xl shrink-0" style={{ background: 'var(--bg-elevated)' }}>
             🔍
           </div>
           <div>
             <p className="text-secondary text-xs mb-0.5">Обратная связь</p>
-            <p className="text-2xl font-bold" style={{ color: '#6366F1' }}>{osByDept.length}</p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--accent)' }}>{osByDept.length}</p>
           </div>
         </div>
-        <div className="bg-card rounded-2xl p-5 flex items-center gap-4">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ background: 'rgba(245,158,11,0.12)' }}>
+        <div className="rounded-lg p-5 flex items-center gap-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div className="w-11 h-11 rounded-lg flex items-center justify-center text-xl shrink-0" style={{ background: 'var(--bg-elevated)' }}>
             👤
           </div>
           <div>
             <p className="text-secondary text-xs mb-0.5">Администраторы</p>
-            <p className="text-2xl font-bold" style={{ color: '#F59E0B' }}>{adminByDept.length}</p>
+            <p className="text-2xl font-bold" style={{ color: '#E5913A' }}>{adminByDept.length}</p>
           </div>
         </div>
       </div>

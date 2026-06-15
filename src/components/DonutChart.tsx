@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Sector } from 'recharts';
 
-const COLORS = ['#6366F1', '#F43F5E', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#EC4899', '#14B8A6'];
+// Muted, editorial palette — not rainbow
+const COLORS = [
+  '#7CA52A', '#5B8A8B', '#A0623A', '#8B6FA0',
+  '#4A7B9D', '#C4936A', '#6B8E5E', '#9B6B6B',
+];
 
-// ─── Tooltip ────────────────────────────────────────────────
 function ChartTooltip({ active, payload }: {
   active?: boolean;
   payload?: { name: string; value: number; payload: { fill?: string } }[];
@@ -13,22 +16,19 @@ function ChartTooltip({ active, payload }: {
   const color = payload[0].payload.fill ?? COLORS[0];
   return (
     <div style={{
-      background: 'rgba(10, 14, 26, 0.95)',
-      border: '1px solid rgba(255, 255, 255, 0.14)',
-      borderRadius: 10,
-      padding: '8px 12px',
-      backdropFilter: 'blur(8px)',
-      boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+      background: 'var(--bg-elevated)',
+      border: '1px solid var(--border-color)',
+      borderRadius: 6,
+      padding: '7px 12px',
     }}>
-      <p style={{ color: '#F1F5F9', fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{name}</p>
-      <p style={{ color, fontSize: 13, fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>
-        {value} <span style={{ color: '#94A3B8', fontWeight: 400, fontSize: 11 }}>записей</span>
+      <p style={{ color: 'var(--text-secondary)', fontSize: 11, marginBottom: 3 }}>{name}</p>
+      <p style={{ color, fontSize: 14, fontFamily: '"JetBrains Mono", monospace', fontWeight: 600, margin: 0 }}>
+        {value} <span style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: 11 }}>зап.</span>
       </p>
     </div>
   );
 }
 
-// ─── Активный сектор — вырастает наружу ─────────────────────
 function ActiveSector(props: Record<string, unknown>) {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props as {
     cx: number; cy: number;
@@ -38,14 +38,12 @@ function ActiveSector(props: Record<string, unknown>) {
   };
   return (
     <Sector
-      cx={cx}
-      cy={cy}
-      innerRadius={innerRadius - 3}
-      outerRadius={(outerRadius as number) + 10}
+      cx={cx} cy={cy}
+      innerRadius={innerRadius - 2}
+      outerRadius={(outerRadius as number) + 8}
       startAngle={startAngle}
       endAngle={endAngle}
       fill={fill}
-      style={{ filter: `drop-shadow(0 0 8px ${fill}88)` }}
     />
   );
 }
@@ -61,17 +59,26 @@ export default function DonutChart({ data, title, onSegmentClick }: Props) {
   if (!data.length) return null;
   const clickable = !!onSegmentClick;
 
-  // Добавляем fill в payload для tooltip
   const enriched = data.map((d, i) => ({ ...d, fill: COLORS[i % COLORS.length] }));
 
   return (
-    <div className="bg-card rounded-xl p-5">
-      <h3 className="text-primary font-semibold text-sm mb-2">
-        {title}
+    <div
+      className="rounded-lg p-5"
+      style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
+    >
+      <div className="flex items-baseline gap-2 mb-2">
+        <h3
+          className="font-display font-semibold text-sm"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          {title}
+        </h3>
         {clickable && (
-          <span className="ml-2 text-secondary font-normal text-xs">— нажмите для фильтра</span>
+          <span className="text-[10px] font-sans" style={{ color: 'var(--text-secondary)' }}>
+            кликабельно
+          </span>
         )}
-      </h3>
+      </div>
       <ResponsiveContainer width="100%" height={260}>
         <PieChart>
           <Pie
@@ -82,7 +89,7 @@ export default function DonutChart({ data, title, onSegmentClick }: Props) {
             outerRadius={85}
             dataKey="value"
             isAnimationActive
-            animationDuration={600}
+            animationDuration={500}
             activeIndex={activeIndex ?? undefined}
             activeShape={ActiveSector}
             style={{ cursor: clickable ? 'pointer' : 'default', outline: 'none' }}
@@ -94,16 +101,16 @@ export default function DonutChart({ data, title, onSegmentClick }: Props) {
               <Cell
                 key={i}
                 fill={entry.fill}
-                fillOpacity={activeIndex === null || activeIndex === i ? 1 : 0.45}
-                style={{ transition: 'fill-opacity 0.15s', outline: 'none' }}
+                fillOpacity={activeIndex === null || activeIndex === i ? 1 : 0.4}
+                style={{ transition: 'fill-opacity 0.12s', outline: 'none' }}
               />
             ))}
           </Pie>
           <Tooltip content={<ChartTooltip />} />
           <Legend
             iconType="circle"
-            iconSize={8}
-            wrapperStyle={{ fontSize: 12, color: 'var(--text-secondary)' }}
+            iconSize={7}
+            wrapperStyle={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: '"DM Sans", sans-serif' }}
           />
         </PieChart>
       </ResponsiveContainer>

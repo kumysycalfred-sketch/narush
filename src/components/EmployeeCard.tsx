@@ -18,7 +18,8 @@ export default function EmployeeCard({ stats, onClick, maxCount }: Props) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left bg-card rounded-xl p-3.5 border border-border hover:border-accent/40 hover:shadow-md hover:-translate-y-1 transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-accent/50"
+      className="w-full text-left rounded-lg p-3.5 hover:-translate-y-0.5 transition-all duration-150 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-accent/50"
+      style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="min-w-0">

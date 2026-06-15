@@ -20,7 +20,8 @@ export default function DayRecordsModal({ date, records, onClose }: Props) {
           <motion.div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
           <motion.div
-            className="relative bg-card rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+            className="relative rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden"
+            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
@@ -28,7 +29,7 @@ export default function DayRecordsModal({ date, records, onClose }: Props) {
           >
             {/* Шапка */}
             <div className="px-6 py-5 flex items-center gap-4 shrink-0" style={{ borderBottom: '1px solid var(--border-color)' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ background: 'rgba(99,102,241,0.15)' }}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0" style={{ background: 'var(--bg-elevated)' }}>
                 📅
               </div>
               <div className="flex-1 min-w-0">
@@ -74,8 +75,8 @@ export default function DayRecordsModal({ date, records, onClose }: Props) {
                             <span
                               className="px-2 py-0.5 rounded-full text-[10px] font-medium"
                               style={{
-                                background: r.resolution === 'Нарушений нет' ? 'rgba(31,157,87,0.15)' : 'rgba(211,43,56,0.15)',
-                                color:      r.resolution === 'Нарушений нет' ? '#1F9D57' : '#D32B38',
+                                background: r.resolution === 'Нарушений нет' ? 'rgba(66,183,122,0.15)' : 'rgba(232,64,64,0.15)',
+                              color:      r.resolution === 'Нарушений нет' ? '#42B77A' : '#E84040',
                               }}
                             >
                               {r.resolution}

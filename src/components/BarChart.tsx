@@ -4,36 +4,25 @@ import {
   ResponsiveContainer, Tooltip, Cell,
 } from 'recharts';
 
-const PALETTE = [
-  '#6366F1', '#F43F5E', '#10B981', '#F59E0B',
-  '#8B5CF6', '#06B6D4', '#EC4899', '#14B8A6',
-  '#F97316', '#84CC16', '#3B82F6', '#A855F7',
-];
-
-// ─── Tooltip ────────────────────────────────────────────────
 function ChartTooltip({ active, payload, label }: {
   active?: boolean;
-  payload?: { value: number; payload: { _fill: string } }[];
+  payload?: { value: number }[];
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
-  const color = payload[0]?.payload?._fill ?? '#6366F1';
   return (
     <div style={{
-      background: 'rgba(8, 12, 24, 0.97)',
-      border: `1px solid ${color}66`,
-      borderRadius: 10,
-      padding: '8px 14px',
-      backdropFilter: 'blur(8px)',
-      boxShadow: `0 4px 24px rgba(0,0,0,0.6), 0 0 12px ${color}22`,
-      minWidth: 140,
+      background: 'var(--bg-elevated)',
+      border: '1px solid var(--border-color)',
+      borderRadius: 6,
+      padding: '7px 12px',
+      minWidth: 130,
       pointerEvents: 'none',
-      zIndex: 999,
     }}>
-      <p style={{ color: '#CBD5E1', fontSize: 11, marginBottom: 4, fontWeight: 500 }}>{label}</p>
-      <p style={{ color, fontSize: 15, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, margin: 0 }}>
+      <p style={{ color: 'var(--text-secondary)', fontSize: 11, marginBottom: 3 }}>{label}</p>
+      <p style={{ color: 'var(--text-primary)', fontSize: 15, fontFamily: '"JetBrains Mono", monospace', fontWeight: 600, margin: 0 }}>
         {payload[0].value}
-        <span style={{ color: '#64748B', fontWeight: 400, fontSize: 11, marginLeft: 4 }}>записей</span>
+        <span style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: 11, marginLeft: 4 }}>зап.</span>
       </p>
     </div>
   );
@@ -41,33 +30,43 @@ function ChartTooltip({ active, payload, label }: {
 
 interface Props {
   data: { name: string; count: number }[];
-  color?: string; // оставлен для совместимости, не влияет на цвет баров
+  color?: string;
   title: string;
   onBarClick?: (name: string) => void;
 }
+
+const BAR_BASE   = 'var(--text-secondary)';
+const BAR_ACCENT = 'var(--accent)';
 
 export default function BarChart({ data, title, onBarClick }: Props) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   if (!data.length) return null;
 
-  // Добавляем _fill в каждую точку для Tooltip
-  const enriched = data.map((d, i) => ({ ...d, _fill: PALETTE[i % PALETTE.length] }));
-
-  const barHeight = 36;
+  const barHeight = 34;
   const height = data.length * barHeight + 24;
   const clickable = !!onBarClick;
 
   return (
-    <div className="bg-card rounded-xl p-5">
-      <h3 className="text-primary font-semibold text-sm mb-4">
-        {title}
+    <div
+      className="rounded-lg p-5"
+      style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
+    >
+      <div className="flex items-baseline gap-2 mb-4">
+        <h3
+          className="font-display font-semibold text-sm"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          {title}
+        </h3>
         {clickable && (
-          <span className="ml-2 text-secondary font-normal text-xs">— нажмите для деталей</span>
+          <span className="text-[10px] font-sans" style={{ color: 'var(--text-secondary)' }}>
+            кликабельно
+          </span>
         )}
-      </h3>
+      </div>
       <ResponsiveContainer width="100%" height={height}>
         <ReBarChart
-          data={enriched}
+          data={data}
           layout="vertical"
           margin={{ left: 0, right: 16, top: 0, bottom: 0 }}
           onClick={clickable ? (e) => {
@@ -81,36 +80,33 @@ export default function BarChart({ data, title, onBarClick }: Props) {
             type="category"
             dataKey="name"
             width={140}
-            tick={{ fontSize: 12, fill: 'var(--text-primary)' }}
+            tick={{ fontSize: 11, fill: 'var(--text-secondary)', fontFamily: '"DM Sans", sans-serif' }}
             tickLine={false}
             axisLine={false}
           />
           <Tooltip
             content={<ChartTooltip />}
-            cursor={{ fill: 'rgba(255,255,255,0.04)', radius: 4 }}
+            cursor={{ fill: 'var(--bg-elevated)', radius: 2 }}
           />
           <Bar
             dataKey="count"
-            radius={[0, 6, 6, 0]}
+            radius={[0, 3, 3, 0]}
             isAnimationActive
-            animationDuration={600}
+            animationDuration={500}
             onMouseEnter={(_, i) => setActiveIndex(i)}
             onMouseLeave={() => setActiveIndex(null)}
           >
-            {enriched.map((entry, i) => {
+            {data.map((_, i) => {
               const isActive = activeIndex === i;
-              const dimmed = activeIndex !== null && !isActive;
+              const dimmed   = activeIndex !== null && !isActive;
               return (
                 <Cell
                   key={i}
-                  fill={entry._fill}
-                  fillOpacity={dimmed ? 0.3 : 1}
-                  stroke={isActive ? entry._fill : 'transparent'}
-                  strokeWidth={isActive ? 2 : 0}
+                  fill={isActive ? BAR_ACCENT : BAR_BASE}
+                  fillOpacity={dimmed ? 0.35 : isActive ? 1 : 0.55}
                   style={{
                     cursor: clickable ? 'pointer' : 'default',
-                    transition: 'fill-opacity 0.15s',
-                    filter: isActive ? `drop-shadow(0 0 8px ${entry._fill}aa)` : 'none',
+                    transition: 'fill 0.12s, fill-opacity 0.12s',
                   }}
                 />
               );

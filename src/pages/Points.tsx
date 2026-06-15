@@ -39,7 +39,7 @@ export default function Points({ rows }: { rows: SheetRow[] }) {
   return (
     <div className="space-y-6">
       {/* Фильтр */}
-      <div className="bg-card rounded-xl p-4 flex flex-wrap gap-3 items-center">
+      <div className="rounded-lg p-4 flex flex-wrap gap-3 items-center" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <select className={SELECT_CLASS} value={filterObject} onChange={e => setFilterObject(e.target.value)}>
           <option value="">Все объекты</option>
           {['Кухня', 'Бар', 'Цех', 'Поставщик'].map(o => <option key={o} value={o}>{o}</option>)}

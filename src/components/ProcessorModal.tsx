@@ -62,7 +62,8 @@ export default function ProcessorModal({ selected, rows, onClose }: Props) {
 
           {/* Панель */}
           <motion.div
-            className="relative bg-card rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+            className="relative rounded-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
@@ -103,7 +104,7 @@ export default function ProcessorModal({ selected, rows, onClose }: Props) {
                       { label: 'Возврат деньгами', value: cashRefund  ? `${cashRefund.toLocaleString('ru')} р`  : '—', color: '#D6850A' },
                       { label: 'Начислено баллов', value: bonusRefund ? `${bonusRefund.toLocaleString('ru')} р` : '—', color: '#8B5CF6' },
                     ].map(k => (
-                      <div key={k.label} className="rounded-xl p-3" style={{ background: 'var(--bg)', border: '1px solid var(--border-color)' }}>
+                      <div key={k.label} className="rounded-lg p-3" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-color)' }}>
                         <p className="text-secondary text-xs mb-1">{k.label}</p>
                         <p className="font-bold text-base tabular-nums leading-tight" style={{ color: k.color }}>{k.value}</p>
                       </div>

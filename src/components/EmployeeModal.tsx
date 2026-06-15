@@ -191,14 +191,15 @@ export default function EmployeeModal({ stats, employeeRows, onClose }: Props) {
 
           {/* Панель */}
           <motion.div
-            className="relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto bg-card rounded-2xl shadow-2xl border border-border"
+            className="relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-xl"
+            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
             initial={{ scale: 0.95, opacity: 0, y: 8 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 8 }}
             transition={{ duration: 0.2 }}
           >
             {/* Шапка */}
-            <div className="sticky top-0 bg-card border-b border-border px-5 py-4 flex items-start justify-between gap-4 rounded-t-2xl z-10">
+            <div className="sticky top-0 px-5 py-4 flex items-start justify-between gap-4 rounded-t-xl z-10" style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
               <div>
                 <h2 className="text-primary font-bold text-lg leading-tight">{stats.name}</h2>
                 <p className="text-secondary text-sm">{stats.position}</p>

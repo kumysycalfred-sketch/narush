@@ -62,7 +62,7 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
   return (
     <div className="space-y-6">
       {/* Фильтры */}
-      <div className="bg-card rounded-xl p-4 flex flex-wrap gap-3 items-center">
+      <div className="rounded-lg p-4 flex flex-wrap gap-3 items-center" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <select className={SELECT_CLASS} value={filterPosition} onChange={e => setFilterPosition(e.target.value)}>
           <option value="">Все должности</option>
           {allPositions.map(p => <option key={p} value={p}>{p}</option>)}

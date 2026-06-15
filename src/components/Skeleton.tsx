@@ -1,6 +1,6 @@
 export function SkeletonCard() {
   return (
-    <div className="bg-card rounded-xl p-4 animate-pulse">
+    <div className="rounded-lg p-4 animate-pulse" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
       <div className="h-3 bg-border rounded w-2/3 mb-3" />
       <div className="h-7 bg-border rounded w-1/2 mb-2" />
       <div className="h-3 bg-border rounded w-1/3" />
@@ -10,7 +10,7 @@ export function SkeletonCard() {
 
 export function SkeletonChart() {
   return (
-    <div className="bg-card rounded-xl p-5 animate-pulse">
+    <div className="rounded-lg p-5 animate-pulse" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
       <div className="h-4 bg-border rounded w-1/3 mb-4" />
       <div className="h-48 bg-border rounded" />
     </div>

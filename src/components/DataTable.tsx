@@ -54,7 +54,7 @@ export default function DataTable({ rows }: Props) {
   const shown = sorted.slice(0, visible);
 
   return (
-    <div className="bg-card rounded-xl overflow-hidden">
+    <div className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
       <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10">

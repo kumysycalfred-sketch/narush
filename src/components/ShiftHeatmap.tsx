@@ -14,7 +14,7 @@ export default function ShiftHeatmap({ data, title }: Props) {
   };
 
   return (
-    <div className="bg-card rounded-xl p-5 col-span-1 md:col-span-2">
+    <div className="rounded-lg p-5 col-span-1 md:col-span-2" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
       <h3 className="text-primary font-semibold text-sm mb-4">{title}</h3>
       <div className="overflow-x-auto">
         <table className="w-full text-xs border-collapse">

@@ -21,7 +21,7 @@ interface CompareItem { label: string; curr: number; prev: number; higherIsBad: 
 
 function CompareStrip({ items }: { items: CompareItem[] }) {
   return (
-    <div className="bg-card rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 border border-[var(--border-color)]">
+    <div className="rounded-lg px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
       <span className="text-secondary text-[10px] font-semibold uppercase tracking-widest shrink-0">
         vs предыдущий период
       </span>
@@ -124,7 +124,7 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-card rounded-xl p-4 flex flex-wrap gap-3 items-center">
+      <div className="rounded-lg p-4 flex flex-wrap gap-3 items-center" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <select className={SELECT_CLASS} value={filterType} onChange={e => setFilterType(e.target.value)}>
           <option value="">Все типы</option>
           <option value="Отзыв гостя">Отзыв гостя</option>
