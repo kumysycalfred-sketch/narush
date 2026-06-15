@@ -72,21 +72,27 @@ export default function DateRangeFilter({ value, onChange }: Props) {
   };
 
   const btn = (active: boolean) =>
-    `px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+    `relative px-3 py-1.5 text-xs font-medium transition-all duration-150 cursor-pointer ${
       active
-        ? 'bg-accent text-white shadow-sm'
-        : 'text-secondary hover:text-primary hover:bg-black/5 dark:hover:bg-white/5'
+        ? 'text-primary'
+        : 'text-secondary hover:text-primary'
     }`;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 pb-2.5 flex flex-wrap items-center gap-1.5">
+    <div className="max-w-7xl mx-auto px-4 pb-2 flex flex-wrap items-center gap-0.5">
       {QUICK.map(({ key, label }) => (
         <button key={key} onClick={() => applyPreset(key)} className={btn(preset === key)}>
           {label}
+          {preset === key && (
+            <span className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
+          )}
         </button>
       ))}
       <button onClick={toggleCustom} className={btn(preset === 'custom')}>
         Свой ▾
+        {preset === 'custom' && (
+          <span className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ backgroundColor: 'var(--accent)' }} />
+        )}
       </button>
 
       <AnimatePresence>

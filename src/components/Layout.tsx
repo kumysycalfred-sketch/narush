@@ -143,7 +143,7 @@ export default function Layout({
                   <span className="sm:hidden">{short}</span>
                   {active && (
                     <span
-                      className="absolute bottom-0 left-0 right-0 h-[2px]"
+                      className="absolute bottom-0 left-0 right-0 h-[3px]"
                       style={{ backgroundColor: 'var(--accent)' }}
                     />
                   )}
