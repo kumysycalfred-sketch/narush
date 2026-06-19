@@ -116,7 +116,7 @@ export function isBonus(row: SheetRow): boolean {
 }
 
 export function isCertificate(row: SheetRow): boolean {
-  return row.resolution?.trim() === 'Сертификат';
+  return row.resolution?.trim().toLowerCase() === 'сертификат';
 }
 
 export function sumCashRefund(rows: SheetRow[]): number {
