@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { SheetRow, EmployeeStats } from '../types';
-import { buildEmployeeStats, topN, countBy, sumRefund, sumCashRefund, sumBonusRefund, uniqueValues } from '../utils/aggregate';
+import { buildEmployeeStats, topN, countBy, sumRefund, sumCashRefund, sumBonusRefund, sumCertRefund, uniqueValues } from '../utils/aggregate';
 import KpiRow from '../components/KpiRow';
 import BarChart from '../components/BarChart';
 import EmployeeCard from '../components/EmployeeCard';
@@ -47,6 +47,7 @@ export default function Staff({ rows }: { rows: SheetRow[] }) {
     { label: 'Уникальных сотрудников', value: stats.length,       color: '#6B7280', icon: '👥' },
     { label: 'Лишений премии',         value: penaltyCount,       color: '#D32B38', icon: '❌' },
     { label: 'Возврат деньгами',        value: sumCashRefund(searched),  format: 'currency' as const, color: '#D6850A', icon: '💰' },
+    { label: 'Сертификаты',             value: sumCertRefund(searched),  format: 'currency' as const, color: '#5B8A8B', icon: '🎫' },
     { label: 'Начислено баллов',        value: sumBonusRefund(searched), format: 'currency' as const, color: '#8B5CF6', icon: '🎁' },
     { label: 'Прощений',               value: forgivenCount,      color: '#1F9D57', icon: '🤝' },
   ];

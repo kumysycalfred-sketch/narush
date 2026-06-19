@@ -115,12 +115,20 @@ export function isBonus(row: SheetRow): boolean {
   return row.statusOS.toLowerCase().includes('начислены баллы');
 }
 
+export function isCertificate(row: SheetRow): boolean {
+  return row.resolution?.trim() === 'Сертификат';
+}
+
 export function sumCashRefund(rows: SheetRow[]): number {
-  return rows.filter(r => !isBonus(r)).reduce((sum, r) => sum + r.refund, 0);
+  return rows.filter(r => !isBonus(r) && !isCertificate(r)).reduce((sum, r) => sum + r.refund, 0);
 }
 
 export function sumBonusRefund(rows: SheetRow[]): number {
   return rows.filter(r => isBonus(r)).reduce((sum, r) => sum + r.refund, 0);
+}
+
+export function sumCertRefund(rows: SheetRow[]): number {
+  return rows.filter(r => isCertificate(r)).reduce((sum, r) => sum + r.refund, 0);
 }
 
 export function uniqueValues(rows: SheetRow[], key: keyof Pick<SheetRow, 'point' | 'position' | 'object'>): string[] {
