@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SheetRow, ProcessorStats } from '../types';
 import { buildProcessorStats, byProcessedDate, normShortDate } from '../utils/aggregate';
+import { isBookkeepingType } from '../utils/parse';
 import DayChart from '../components/DayChart';
 import ProcessorModal from '../components/ProcessorModal';
 import DayRecordsModal from '../components/DayRecordsModal';
@@ -95,8 +96,11 @@ export default function Departments({ rows }: Props) {
   const [selectedProcessor, setSelectedProcessor] = useState<ProcessorStats | null>(null);
   const [selectedDay, setSelectedDay]             = useState<string | null>(null);
 
+  // Сертификаты/возврат 30%/тех.возврат — не реально отработанные обращения,
+  // а просто внесение в таблицу для учёта возврата — не должны идти в зачёт
+  // "кто сколько отработал".
   const deptRows = useMemo(() =>
-    rows.filter(r => KNOWN_DEPTS.includes(r.department)),
+    rows.filter(r => KNOWN_DEPTS.includes(r.department) && !isBookkeepingType(r.type)),
     [rows]
   );
 

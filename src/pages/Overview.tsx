@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { SheetRow } from '../types';
 import { countBy, topN, byDate, sumCashRefund, sumBonusRefund, sumCertRefund, uniqueValues, buildShiftHeatmap, normShortDate } from '../utils/aggregate';
-import { isGuestReview, isViolation } from '../utils/parse';
+import { isGuestReview, isViolation, isBookkeepingType } from '../utils/parse';
 import KpiRow from '../components/KpiRow';
 import BarChart from '../components/BarChart';
 import DonutChart from '../components/DonutChart';
@@ -80,14 +80,19 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
   }), [prevRows, filterType, filterObject, filterPoint]);
 
   const guestRows     = useMemo(() => filtered.filter(r => isGuestReview(r.type)), [filtered]);
-  const withViolation = useMemo(() => filtered.filter(r => isViolation(r.resolution)), [filtered]);
+  // Сертификаты/возврат 30%/тех.возврат — не отработанные отзывы или нарушения,
+  // а просто внесение в таблицу для учёта возврата — не должны идти в зачёт.
+  const withViolation = useMemo(
+    () => filtered.filter(r => isViolation(r.resolution) && !isBookkeepingType(r.type)),
+    [filtered]
+  );
 
   const kpis = [
     { label: 'Всего записей',    value: filtered.length,          color: '#3F3DC4', icon: '📋' },
     {
       label: 'Отзывов гостей',   value: guestRows.length,
       // БАГ 8: исключаем строки с пустым type, чтобы не завышать счётчик "доп/адм"
-      sub: `доп/адм: ${filtered.filter(r => r.type && !isGuestReview(r.type)).length}`,
+      sub: `доп/адм: ${filtered.filter(r => r.type && !isGuestReview(r.type) && !isBookkeepingType(r.type)).length}`,
       color: '#6B7280',          icon: '💬',
     },
     { label: 'С нарушениями',    value: withViolation.length,     color: '#D32B38', icon: '⚠️' },
@@ -98,7 +103,7 @@ export default function Overview({ rows, prevRows, showCompare }: Props) {
 
   const compareItems: CompareItem[] = [
     { label: 'Записей',   curr: filtered.length,         prev: filteredPrev.length,                                         higherIsBad: false },
-    { label: 'Нарушений', curr: withViolation.length,    prev: filteredPrev.filter(r => isViolation(r.resolution)).length,  higherIsBad: true  },
+    { label: 'Нарушений', curr: withViolation.length,    prev: filteredPrev.filter(r => isViolation(r.resolution) && !isBookkeepingType(r.type)).length,  higherIsBad: true  },
     { label: 'Возврат',   curr: sumCashRefund(filtered), prev: sumCashRefund(filteredPrev), higherIsBad: true, currency: true },
   ];
 

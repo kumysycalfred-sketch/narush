@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseRefund, parseList, parseMeta3p, isGuestReview, isViolation, parseRows } from '../utils/parse';
+import { parseRefund, parseList, parseMeta3p, isGuestReview, isViolation, isBookkeepingType, parseRows } from '../utils/parse';
 
 describe('parseRefund', () => {
   it('parses "р.640,00"', () => expect(parseRefund('р.640,00')).toBe(640));
@@ -66,4 +66,16 @@ describe('department refund rule', () => {
     const rows = parseRows(makeCSV('', '640,00'));
     expect(rows[0].refund).toBe(640);
   });
+});
+
+describe('isBookkeepingType', () => {
+  it('"сертификат" → true', () => expect(isBookkeepingType('сертификат')).toBe(true));
+  it('"30%" → true', () => expect(isBookkeepingType('30%')).toBe(true));
+  it('"тех возврат" → true', () => expect(isBookkeepingType('тех возврат')).toBe(true));
+  it('case-insensitive: "Сертификат" → true', () => expect(isBookkeepingType('Сертификат')).toBe(true));
+  it('trims whitespace: " тех возврат " → true', () => expect(isBookkeepingType(' тех возврат ')).toBe(true));
+  it('"Отзыв гостя" → false', () => expect(isBookkeepingType('Отзыв гостя')).toBe(false));
+  it('"доп нарушение" → false', () => expect(isBookkeepingType('доп нарушение')).toBe(false));
+  it('empty string → false', () => expect(isBookkeepingType('')).toBe(false));
+  it('undefined → false', () => expect(isBookkeepingType(undefined as unknown as string)).toBe(false));
 });

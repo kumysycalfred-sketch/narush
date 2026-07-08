@@ -24,6 +24,15 @@ export function isGuestReview(type: string): boolean {
   return type?.startsWith('Отзыв гостя') ?? false;
 }
 
+const BOOKKEEPING_TYPES = new Set(['сертификат', '30%', 'тех возврат']);
+
+// Эти "вид" — не реально обработанный отзыв/нарушение, а просто внесение
+// в таблицу для учёта возврата (сертификат, возврат 30%, тех. возврат).
+// Не должны засчитываться в статистику отработанных отзывов/нарушений.
+export function isBookkeepingType(type: string): boolean {
+  return BOOKKEEPING_TYPES.has(type?.trim().toLowerCase() ?? '');
+}
+
 export function isViolation(resolution: string): boolean {
   return resolution?.trim() !== 'Нарушений нет';
 }
