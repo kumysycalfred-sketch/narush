@@ -6,6 +6,7 @@ import { parseRows } from './utils/parse';
 import { filterByDate, filterByProcessedAt, getPrevRange } from './utils/aggregate';
 import { useTheme } from './hooks/useTheme';
 import Layout from './components/Layout';
+import SettingsModal from './components/SettingsModal';
 import { SkeletonPage } from './components/Skeleton';
 import Overview from './pages/Overview';
 import Staff from './pages/Staff';
@@ -42,6 +43,7 @@ export default function App() {
   const [updatedAt, setUpdatedAt]   = useState<string | null>(null);
   const [dateRange, setDateRange]   = useState<DateRange>({ from: null, to: null });
   const [refreshing, setRefreshing] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -85,7 +87,13 @@ export default function App() {
       updatedAt={updatedAt}
       onRefresh={refresh} refreshing={refreshing}
       dateRange={dateRange} onDateChange={setDateRange}
+      onOpenSettings={() => setSettingsOpen(true)}
     >
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onSaved={load}
+      />
       {loading ? (
         <SkeletonPage />
       ) : error ? (
