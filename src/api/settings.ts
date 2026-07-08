@@ -1,6 +1,15 @@
+export interface SheetSource {
+  id: string;
+  sheetUrl: string;
+  savedAt: string | null;
+  rowCount: number;
+  active: boolean;
+}
+
 export interface SheetSettings {
   sheetUrl: string;
   savedAt: string | null;
+  sources: SheetSource[];
 }
 
 export async function fetchSettings(): Promise<SheetSettings> {
@@ -18,4 +27,12 @@ export async function updateSettings(url: string): Promise<SheetSettings> {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error ?? 'Не удалось сохранить ссылку');
   return data;
+}
+
+export async function deleteSource(id: string): Promise<void> {
+  const res = await fetch(`/api/settings/sources/${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error ?? 'Не удалось удалить источник');
+  }
 }

@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const Papa = require('papaparse');
 
 const app = express();
@@ -9,6 +10,8 @@ const DEFAULT_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1acOsDrO3b09INmF2oRLLRIJLlIqRCLrh_hLxnswxy0Q/export?format=csv&gid=233513778';
 const REFRESH_MS = 5 * 60 * 1000;
 const SETTINGS_PATH = path.join(__dirname, 'data', 'settings.json');
+const SOURCES_INDEX_PATH = path.join(__dirname, 'data', 'sources.json');
+const ARCHIVE_DIR = path.join(__dirname, 'data', 'archive');
 
 let cache = { csv: null, updatedAt: null };
 
@@ -58,14 +61,94 @@ function parseSheetUrl(input) {
   return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
 }
 
+function sourceId(sheetUrl) {
+  return crypto.createHash('sha1').update(sheetUrl).digest('hex').slice(0, 12);
+}
+
+function loadSourceIndex() {
+  try {
+    const raw = fs.readFileSync(SOURCES_INDEX_PATH, 'utf-8');
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed.entries)) return parsed;
+  } catch {
+    // no archived sources yet
+  }
+  return { entries: [] };
+}
+
+function saveSourceIndex(index) {
+  fs.mkdirSync(path.dirname(SOURCES_INDEX_PATH), { recursive: true });
+  fs.writeFileSync(SOURCES_INDEX_PATH, JSON.stringify(index, null, 2));
+}
+
+function archiveFilePath(id) {
+  return path.join(ARCHIVE_DIR, `${id}.csv`);
+}
+
+function countDataRows(csv) {
+  const parsed = Papa.parse(csv, { skipEmptyLines: true });
+  return Math.max(parsed.data.length - 1, 0);
+}
+
+// Каждый месяц — новый лист таблицы. Вместо того чтобы заменять данные при
+// смене ссылки, каждый источник архивируется на диск отдельно, а итоговый
+// набор строится объединением всех архивов — старые месяцы не пропадают.
+async function storeSource(sheetUrl) {
+  const res = await fetch(sheetUrl);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const csv = await res.text();
+  if (!csv || !csv.trim()) throw new Error('Таблица пуста или недоступна');
+
+  const id = sourceId(sheetUrl);
+  fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+  fs.writeFileSync(archiveFilePath(id), csv);
+
+  const index = loadSourceIndex();
+  const entry = { id, sheetUrl, savedAt: new Date().toISOString(), rowCount: countDataRows(csv) };
+  const existing = index.entries.find(e => e.id === id);
+  if (existing) {
+    Object.assign(existing, entry);
+  } else {
+    index.entries.push(entry);
+  }
+  saveSourceIndex(index);
+  return entry;
+}
+
+// Объединяет несколько CSV с одинаковым заголовком в один: берёт заголовок
+// первого непустого источника и склеивает строки данных из всех остальных.
+function mergeCsvList(csvList) {
+  let header = null;
+  const rows = [];
+  for (const csv of csvList) {
+    if (!csv) continue;
+    const parsed = Papa.parse(csv, { skipEmptyLines: true });
+    if (parsed.data.length === 0) continue;
+    if (!header) header = parsed.data[0];
+    rows.push(...parsed.data.slice(1));
+  }
+  if (!header) return '';
+  return Papa.unparse([header, ...rows]);
+}
+
+function mergeArchivedSources() {
+  const index = loadSourceIndex();
+  const csvList = index.entries.map(entry => {
+    try {
+      return fs.readFileSync(archiveFilePath(entry.id), 'utf-8');
+    } catch {
+      return null;
+    }
+  });
+  return mergeCsvList(csvList);
+}
+
 let settings = loadSettings();
 
 async function refreshCache() {
   try {
-    const res = await fetch(settings.sheetUrl);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const csv = await res.text();
-    cache = { csv, updatedAt: new Date().toISOString() };
+    await storeSource(settings.sheetUrl);
+    cache = { csv: mergeArchivedSources(), updatedAt: new Date().toISOString() };
     console.log('[cache] refreshed at', cache.updatedAt);
   } catch (err) {
     console.error('[cache] fetch failed:', err.message);
@@ -117,7 +200,18 @@ app.get('/api/refresh', async (req, res) => {
 });
 
 app.get('/api/settings', (req, res) => {
-  res.json({ sheetUrl: settings.sheetUrl, savedAt: settings.savedAt });
+  const index = loadSourceIndex();
+  res.json({
+    sheetUrl: settings.sheetUrl,
+    savedAt: settings.savedAt,
+    sources: index.entries.map(({ id, sheetUrl, savedAt, rowCount }) => ({
+      id,
+      sheetUrl,
+      savedAt,
+      rowCount,
+      active: sheetUrl === settings.sheetUrl,
+    })),
+  });
 });
 
 app.post('/api/settings', async (req, res) => {
@@ -128,21 +222,35 @@ app.post('/api/settings', async (req, res) => {
     return res.status(400).json({ error: err.message });
   }
 
-  let csv;
   try {
-    const testRes = await fetch(sheetUrl);
-    if (!testRes.ok) throw new Error(`HTTP ${testRes.status}`);
-    csv = await testRes.text();
-    if (!csv || !csv.trim()) throw new Error('Таблица пуста или недоступна');
+    await storeSource(sheetUrl);
   } catch (err) {
     return res.status(400).json({ error: `Не удалось загрузить таблицу: ${err.message}` });
   }
 
   settings = { sheetUrl, savedAt: new Date().toISOString() };
   saveSettings(settings);
-  cache = { csv, updatedAt: settings.savedAt };
+  cache = { csv: mergeArchivedSources(), updatedAt: settings.savedAt };
 
   res.json({ ok: true, sheetUrl: settings.sheetUrl, savedAt: settings.savedAt });
+});
+
+app.delete('/api/settings/sources/:id', (req, res) => {
+  const { id } = req.params;
+  if (sourceId(settings.sheetUrl) === id) {
+    return res.status(400).json({ error: 'Нельзя удалить активный источник — сначала подключите другой' });
+  }
+
+  const index = loadSourceIndex();
+  const next = index.entries.filter(e => e.id !== id);
+  if (next.length === index.entries.length) {
+    return res.status(404).json({ error: 'Источник не найден' });
+  }
+  saveSourceIndex({ entries: next });
+  try { fs.unlinkSync(archiveFilePath(id)); } catch {}
+
+  cache = { csv: mergeArchivedSources(), updatedAt: new Date().toISOString() };
+  res.json({ ok: true });
 });
 
 app.get('/api/sheet', (req, res) => {
@@ -168,4 +276,4 @@ if (require.main === module) {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-module.exports = { app, parseSheetUrl };
+module.exports = { app, parseSheetUrl, mergeCsvList };
