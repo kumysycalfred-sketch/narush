@@ -9,9 +9,12 @@ const PORT = process.env.PORT || 3000;
 const DEFAULT_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1acOsDrO3b09INmF2oRLLRIJLlIqRCLrh_hLxnswxy0Q/export?format=csv&gid=233513778';
 const REFRESH_MS = 5 * 60 * 1000;
-const SETTINGS_PATH = path.join(__dirname, 'data', 'settings.json');
-const SOURCES_INDEX_PATH = path.join(__dirname, 'data', 'sources.json');
-const ARCHIVE_DIR = path.join(__dirname, 'data', 'archive');
+// DATA_DIR should point at a mounted persistent volume in production —
+// without one, everything here is wiped on the next deploy (ephemeral FS).
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const SETTINGS_PATH = path.join(DATA_DIR, 'settings.json');
+const SOURCES_INDEX_PATH = path.join(DATA_DIR, 'sources.json');
+const ARCHIVE_DIR = path.join(DATA_DIR, 'archive');
 
 let cache = { csv: null, updatedAt: null };
 
